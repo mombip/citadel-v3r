@@ -417,5 +417,5 @@ details.expander > .content { padding: 0 1rem 1rem; }
 .login-header-card h2 { padding-top: 0.5rem; }
 .app-title { display: flex; align-items: center; gap: 0.6rem; font-size: 1.6rem; font-weight: 700; margin: 0; padding-top: 0.8rem; }
 .app-title img { width: 40px; height: 40px; flex: 0 0 auto; }
-.login-wordmark { display: flex; justify-content: center; color: var(--heading); }
+.login-wordmark { display: flex; justify-content: center; color: var(--heading); padding-top: 0.75rem !important; margin-bottom: 0.75rem; }
 .app-title { color: var(--heading); }

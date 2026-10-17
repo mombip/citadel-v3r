@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fold, fuzzyFilter, fuzzyScore } from "../../shared/fuzzy";
+import { fuzzyFilter, fzyHasMatch, fzyScore } from "../../shared/fuzzy";
 
 const members = [
   "Alicja Nowak (Saldo: 153.00 zł)",
@@ -9,31 +9,34 @@ const members = [
   "Bartosz Mazur (Saldo: 9.00 zł)",
 ];
 
-describe("fuzzy search like Streamlit's selectbox", () => {
-  it("folds case and Polish diacritics", () => {
-    expect(fold("Łukasz ŻÓŁKOWSKI ąćęńś")).toBe("lukasz zolkowski acens");
+describe("selectbox search identical to Streamlit (fzy)", () => {
+  it("matches characters in order, case-insensitive", () => {
+    expect(fzyHasMatch("Mati", "Mateusz Kowalski")).toBe(true);
+    expect(fzyHasMatch("zxq", "Mateusz Kowalski")).toBe(false);
   });
 
-  it("finds Mateusz for 'Mati' (characters in order)", () => {
-    expect(fuzzyScore("Mati", "Mateusz Kowalski")).not.toBeNull();
+  it("finds Mateusz for 'Mati'", () => {
     expect(fuzzyFilter(members, "Mati", (m) => m)).toContain("Mateusz Kowalski (Saldo: 12.00 zł)");
   });
 
-  it("rejects options where characters are out of order", () => {
-    expect(fuzzyScore("zxq", "Mateusz Kowalski")).toBeNull();
+  it("does not fold diacritics, like the original", () => {
+    expect(fzyHasMatch("lukasz", "Łukasz Żółkowski")).toBe(false);
+    expect(fzyHasMatch("łukasz", "Łukasz Żółkowski")).toBe(true);
   });
 
-  it("matches without diacritics", () => {
-    expect(fuzzyFilter(members, "lukasz zol", (m) => m)[0]).toBe("Łukasz Żółkowski (Saldo: 0.00 zł)");
+  it("rewards word starts and consecutive letters (fzy constants)", () => {
+    // word starts (after a space) beat letters inside a word
+    expect(fuzzyFilter(["Xmxxxk Abc", "Mateusz Kowalski"], "mk", (m) => m)[0]).toBe("Mateusz Kowalski");
+    // consecutive letters beat scattered ones
+    expect(fzyScore("now", "Alicja Nowak")).toBeGreaterThan(fzyScore("now", "Natalia Ostrowska"));
   });
 
-  it("ranks substring and word-start matches first", () => {
-    const r = fuzzyFilter(members, "mat", (m) => m);
-    expect(r.slice(0, 2)).toEqual(["Mateusz Kowalski (Saldo: 12.00 zł)", "Matylda Wiśniewska (Saldo: -6.00 zł)"]);
-    expect(fuzzyFilter(members, "mazur", (m) => m)[0]).toBe("Bartosz Mazur (Saldo: 9.00 zł)");
+  it("treats an equal-length match as perfect and keeps original order for ties", () => {
+    expect(fzyScore("abc", "ABC")).toBe(Infinity);
+    expect(fuzzyFilter(["Anna B", "Anna A"], "anna", (m) => m)).toEqual(["Anna B", "Anna A"]);
   });
 
-  it("returns all options for an empty query, in order", () => {
-    expect(fuzzyFilter(members, "  ", (m) => m)).toEqual(members);
+  it("returns all options for an empty query", () => {
+    expect(fuzzyFilter(members, "", (m) => m)).toEqual(members);
   });
 });

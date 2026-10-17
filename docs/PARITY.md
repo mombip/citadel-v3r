@@ -61,3 +61,19 @@ dodanymi tylko w kopii. Zrzuty ekranów z danymi rzeczywistymi nie są w repozyt
 
 Zgodność pikseli na danych rzeczywistych: średnio **94.1%** (91.6–99.0% na ekran).
 Etykieta „nan” oryginału (koło bez regionu w koszu i w listach struktury) odtworzona 1:1.
+
+## Wyszukiwanie w listach rozwijanych (`scripts/compare-search.ts`)
+
+Algorytm przeniesiony 1:1 z frontendu Streamlit (fzy: dopasowanie podciągu bez rozróżniania wielkości liter,
+ranking wg tych samych wag). Porównanie listy członków na danych rzeczywistych:
+
+| Zapytanie | Wyniki identyczne i w tej samej kolejności |
+| :--- | :--- |
+| `Mati`, `kow`, `lodz`, `łódź`, `ann`, `ewa`, `zz` | 7 z 7 (dla wszystkich wierszy renderowanych przez oryginał) |
+
+Jedyna różnica: przy braku wyników oryginał pokazuje angielskie „No results”, nowa wersja „Brak wyników”.
+
+## Zamierzone różnice (na życzenie właściciela)
+
+* Logo „C” w nagłówku aplikacji i jako favicona; nazwa „Citadel for NG” rysowana krojem znaku słownego z żółtą kropką
+  nad „i” (na stronie logowania w dwóch liniach). Tekst nazwy pozostaje w stronie (dla czytników ekranu i porównań).

@@ -30,8 +30,7 @@
   <div class="login-col">
     {#if app.sessionNotice}<Alert kind="warning" html={app.sessionNotice} />{/if}
     <div class="bento-card login-header-card">
-      <img class="login-logo" src="/logo.svg" alt="" width="72" height="72" />
-      <h2 class="login-wordmark"><Wordmark height={44} /></h2>
+      <h2 class="login-wordmark"><Wordmark stacked height={104} /></h2>
       <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 24px;">System Ewidencji Składek i Finansów</div>
     </div>
     <form class="form-card" onsubmit={submit} data-testid="form-login">
