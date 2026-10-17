@@ -1,0 +1,9 @@
+node_modules/
+web/dist/
+.pglite/
+.env
+tests/e2e/results/
+tests/e2e/report/
+tests/e2e/screenshots/*.png
+scratch/
+*.log
