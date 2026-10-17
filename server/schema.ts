@@ -151,7 +151,8 @@ CREATE INDEX IF NOT EXISTS idx_wplaty_oczekujace_kolo ON wplaty_oczekujace(kolo_
 CREATE INDEX IF NOT EXISTS idx_terminy_glosowan_kolo_data ON terminy_glosowan(kolo_id, data_glosowania);
 `;
 
-const EXTRA_DDL = `
+/** Constraints, views, indexes and column migrations (no triggers). Also used as the Netlify Database migration. */
+export const EXTRA_DDL = `
 INSERT INTO kraje (nazwa) VALUES ('Polska') ON CONFLICT (nazwa) DO NOTHING;
 CREATE INDEX IF NOT EXISTS idx_uzytkownicy_login ON uzytkownicy(login);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_aktywne_kola_nazwa ON kola (nazwa) WHERE (is_deleted = FALSE);
@@ -170,7 +171,10 @@ ALTER TABLE terminy_glosowan ADD COLUMN IF NOT EXISTS data_wymagalnosci_do DATE;
 ALTER TABLE terminy_glosowan ADD COLUMN IF NOT EXISTS dni_zbiorki_przed INT NOT NULL DEFAULT 14;
 ALTER TABLE terminy_glosowan ADD COLUMN IF NOT EXISTS dni_wymagalnosci_po INT NOT NULL DEFAULT 0;
 ALTER TABLE terminy_glosowan ADD COLUMN IF NOT EXISTS typ_terminu TEXT NOT NULL DEFAULT 'GLOSOWANIE';
+`;
 
+/** Audit trigger function and per-table triggers (installed by the app on start-up, as in the original). */
+export const AUDIT_TRIGGER_DDL = `
 CREATE OR REPLACE FUNCTION audit_trigger_func()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -240,6 +244,7 @@ export const DEFAULT_ADMIN_PASSWORD = "Centauri2026!";
 export async function initSchema(db: Db): Promise<void> {
   await db.exec(DDL_SCHEMA_EXPORT);
   await db.exec(EXTRA_DDL);
+  await db.exec(AUDIT_TRIGGER_DDL);
   const admins = await db.scalar<number>("SELECT COUNT(*) FROM uzytkownicy WHERE rola = 'ADMIN'");
   if (Number(admins) === 0) {
     const salt = generateSalt();

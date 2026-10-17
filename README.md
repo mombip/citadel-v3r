@@ -53,6 +53,18 @@ npm run start:local-db        # aplikacja na lokalnej kopii (postgresql://citade
 Zrzut wykonywany jest wyłącznie odczytem (`pg_dump`) przez bezpośredni endpoint Neon (bez `-pooler`).
 Katalog `backups/` jest w `.gitignore` — zrzuty zawierają dane produkcyjne.
 
+### Wdrożenie: Netlify (https://citadel-ng.netlify.app)
+
+* SPA z `web/dist` + API jako Netlify Function (`netlify/functions/api.mts`), konfiguracja w `netlify.toml`.
+* Baza: **Netlify Database** (Postgres). Schemat jest migracją `netlify/database/migrations/*_citadel_schema`
+  (generowaną przez `npx tsx scripts/gen-netlify-migration.ts`), stosowaną przy każdym wdrożeniu. Wyzwalacze audytu
+  instaluje aplikacja przy starcie, jak oryginał.
+* Zmienne: `SESSION_SECRET` (ustawiona), opcjonalnie `DATABASE_URL` (nadpisuje Netlify Database), `SKIP_SCHEMA_INIT=1`.
+* Wdrożenie: `npx netlify deploy --prod --build`.
+* Dane zostały zaimportowane jednorazowo ze zrzutu Citadel V3 migracją `*_import_citadel_data`, która zawiera dane
+  rzeczywiste i **nie jest w repozytorium** (`.gitignore`). Wdrożenie z innej kopii repozytorium pominie ten plik;
+  Netlify zgłosi wtedy brak zastosowanej migracji — należy wdrażać z tej kopii lub zachować plik lokalnie.
+
 ### Tryb deweloperski (hot reload)
 
 ```bash

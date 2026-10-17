@@ -13,3 +13,13 @@ tests/e2e/screenshots/new/
 
 # Local database dumps (may contain production data)
 backups/
+
+# Local Netlify folder
+.netlify
+
+# Database dumps (real data, password hashes)
+citadel_backup_*.sql
+*.dump
+
+# One-time data import migration with real data — never commit
+netlify/database/migrations/*_import_citadel_data/

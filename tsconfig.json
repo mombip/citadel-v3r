@@ -14,5 +14,5 @@
     "verbatimModuleSyntax": true,
     "types": ["node", "vite/client"]
   },
-  "include": ["shared", "server", "web/src", "tests", "scripts", "vite.config.ts", "playwright.config.ts", "vitest.config.ts"]
+  "include": ["shared", "server", "netlify", "web/src", "tests", "scripts", "vite.config.ts", "playwright.config.ts", "vitest.config.ts"]
 }

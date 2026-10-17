@@ -1,0 +1,20 @@
+# Netlify: static SPA from web/dist + the Hono API as a Netlify Function (netlify/functions/api.mts).
+# Database: Netlify Database; schema migration in netlify/database/migrations is applied on deploy.
+# DATABASE_URL (optional) overrides it.
+# Also required: SESSION_SECRET (optional: SKIP_SCHEMA_INIT=1).
+[build]
+  command = "npm run build"
+  publish = "web/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+  # PGlite (WASM) is only used locally without DATABASE_URL; keep it out of the function bundle.
+  external_node_modules = ["@electric-sql/pglite"]
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
