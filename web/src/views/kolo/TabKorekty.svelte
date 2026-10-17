@@ -10,6 +10,7 @@
   const opcje = $derived(members.map((d) => [d.id, `${d.imie_nazwisko} | Obecne saldo: ${fmt(d.saldo_akt_pln, 2)} zł`] as [number, string]));
   let czlonek = $state<number | null>(null);
   let saldo = $state(0.0);
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let data = $state(today);
   let powod = $state("Wyrównanie ze stanem papierowym");
   let err = $state("");

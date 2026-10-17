@@ -22,6 +22,7 @@
   // New payment (admin) / declaration (treasurer)
   let czlonek = $state<number | null>(null);
   let kwota = $state(9.0);
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let dataW = $state(today);
   let notatka = $state("Składka członkowska");
   let oswTest = $state("MAM_POTWIERDZENIE");
@@ -85,6 +86,7 @@
   const wpis = $derived(lista.find((w) => w.id === edId));
   let eCzl = $state<number | null>(null);
   let eKwota = $state(0);
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let eData = $state(today);
   let eNot = $state("");
   let eDel = $state(false);
@@ -165,7 +167,7 @@
       <DataTable testid="ostatnie-deklaracje" columns={[
         { key: "id", label: "ID", numeric: true }, { key: "data_wplaty", label: "Data Przelewu" }, { key: "czlonek", label: "Członek" },
         { key: "kwota", label: "Kwota (PLN)", numeric: true }, { key: "status", label: "Status" }, { key: "oswiadczenie", label: "Oświadczenie" },
-      ]} rows={ostatnie.map((o) => ({ ...o, kwota: fmt(o.kwota_gr / 100, 2) }))} />
+      ]} rows={ostatnie.map((o) => ({ ...o, kwota: String(o.kwota_gr / 100) }))} />
     {:else}
       <p class="caption">Brak zgłoszonych oczekujących wpłat.</p>
     {/if}

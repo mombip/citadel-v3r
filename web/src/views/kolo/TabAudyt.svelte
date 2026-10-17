@@ -65,7 +65,7 @@
     <DataTable testid="rejestr-wplat" columns={[
       { key: "id", label: "ID", numeric: true }, { key: "zarejestrowano", label: "Zarejestrowano (PL)" }, { key: "data_wplaty", label: "Data Wpływu" },
       { key: "czlonek", label: "Członek" }, { key: "kwota", label: "Kwota (PLN)", numeric: true }, { key: "notatka", label: "Uwagi" },
-    ]} rows={rejestr.map((w) => ({ ...w, zarejestrowano: formatTimePL(w.data_wpisu), kwota: fmt(w.kwota_gr / 100, 2) }))} />
+    ]} rows={rejestr.map((w) => ({ ...w, zarejestrowano: formatTimePL(w.data_wpisu), kwota: String(w.kwota_gr / 100) }))} />
   {/if}
 {:else}
   <h4>💾 Pełna Kopia Zapasowa Bazy Danych (.sql)</h4>

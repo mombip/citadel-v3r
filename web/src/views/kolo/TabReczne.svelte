@@ -13,6 +13,7 @@
   const opcje = $derived(members.map((d) => [d.id, `${d.imie_nazwisko} (Saldo: ${fmt(d.saldo_akt_pln, 2)} zł)`] as [number, string]));
   let czlonek = $state<number | null>(null);
   let kwota = $state(9.0);
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let data = $state(today);
   let tytul = $state("Składka statutowa");
   let err = $state("");

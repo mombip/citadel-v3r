@@ -27,10 +27,16 @@ await page.goto(base);
 await settle();
 await shot("00-login");
 await page.getByLabel("Login").fill("admin2");
-await page.getByLabel("Hasło").fill("Admin1234!");
+await page.locator('input[type="password"]').fill("Admin1234!");
 await page.getByRole("button", { name: "Zaloguj do systemu" }).click();
 await settle();
 await page.waitForTimeout(3000);
+// Same unit in both apps (the original sorts regions byte-wise, so it opens Mazowsze / Koło Radom first).
+if (await page.locator("select[name=region]").count()) {
+  await page.locator("select[name=region]").selectOption({ label: "Mazowsze" });
+  await page.locator("select[name=kolo]").selectOption({ label: "Koło Radom" });
+  await page.waitForTimeout(800);
+}
 await shot("01-kolo-zbiorcza");
 
 const tabs = [
@@ -90,7 +96,7 @@ await settle();
 await page.getByRole("button", { name: "Wyloguj" }).click();
 await settle();
 await page.getByLabel("Login").fill("kolo_waw");
-await page.getByLabel("Hasło").fill("Kolo1234!");
+await page.locator('input[type="password"]').fill("Kolo1234!");
 await page.getByRole("button", { name: "Zaloguj do systemu" }).click();
 await settle();
 await page.waitForTimeout(2500);

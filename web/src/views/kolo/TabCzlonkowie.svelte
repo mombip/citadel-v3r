@@ -24,6 +24,7 @@
   // Add
   let aNazwa = $state("");
   let aUr = $state("2004-01-01");
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let aWst = $state(today);
   let aStart = $state(0.0);
   let aParam = $state("AUTO");
@@ -46,7 +47,9 @@
   let edId = $state<number | null>(null);
   const osoba = $derived(members.find((m) => m.id === edId));
   let eNazwa = $state("");
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let eUr = $state(today);
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let eWst = $state(today);
   let eStart = $state(0);
   let eParam = $state("AUTO");

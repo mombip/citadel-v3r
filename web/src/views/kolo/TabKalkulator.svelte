@@ -23,6 +23,7 @@
   const paramKod = $derived(auto ? "AUTO" : stawka[0]);
   const birth = $derived(auto ? dataUr : "2000-01-01");
   let dataWst = $state("2023-09-12");
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let punkt = $state(today);
   const startOpcje = [
     "Od daty przystąpienia członka",
@@ -133,7 +134,7 @@
       </div>
       <div class="col">
         {#if stawkaFn > 0}
-          <NumberInput label="Liczba miesięcy pełnienia funkcji:" bind:value={miesiaceFn} min={0} max={120} step={1} name="calc-fn-msc" />
+          <NumberInput label="Liczba miesięcy pełnienia funkcji:" bind:value={miesiaceFn} min={0} max={120} step={1} decimals={0} name="calc-fn-msc" />
         {:else}
           <div class="field"><label for="calc-fn-x">Liczba miesięcy pełnienia funkcji:</label><input id="calc-fn-x" class="input" value="0 (brak)" disabled /></div>
         {/if}
@@ -172,6 +173,7 @@
       <div class="field">
         <label for="calc-sym">Symulowana kwota przelewu (PLN): <strong>{fmt(symDoplata, 2)}</strong></label>
         <input id="calc-sym" class="slider" type="range" min="0" max={symMax} step="5" bind:value={symDoplata} />
+        <div class="slider-scale"><span>0.00</span><span>{fmt(symMax, 2)}</span></div>
       </div>
       <p>• Nowe saldo po dopłacie: <strong>{fmt(symSaldo, 2, { sign: true })} zł</strong></p>
       <p>• Nowe zadłużenie: <strong>{fmt(symMsc, 1)} miesięcy</strong></p>

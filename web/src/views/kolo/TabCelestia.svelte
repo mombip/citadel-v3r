@@ -65,6 +65,7 @@
   const kategorie = ["🗳️ Głosowanie / Zebranie (wpływa na prawo głosu VDC)", "📆 Zbiórka Kwartalna (wpływa na rytm wpłat, bez praw głosu)"];
   let kategoria = $state(kategorie[0]);
   const czyGlos = $derived(kategoria.includes("Głosowanie"));
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let data = $state(today);
   let wagaGlos = $state("Zwyczajne (waga 1.0)");
   let wagaKw = $state("Standardowa zbiórka kwartału (waga 1.0)");
@@ -197,8 +198,8 @@
     </div>
   </div>
   <div class="cols">
-    <div class="col" style="flex: 1"><div onfocusin={() => (touched = true)}><NumberInput label="Długość zbiórki (dni przed):" bind:value={dniPrzed} min={1} max={90} step={1} name="dni-przed" /></div></div>
-    <div class="col" style="flex: 1"><div onfocusin={() => (touched = true)}><NumberInput label="Dopuszczalny poślizg (dni po terminie):" bind:value={dniPo} min={0} max={3} step={1} name="dni-po" /></div></div>
+    <div class="col" style="flex: 1"><div onfocusin={() => (touched = true)}><NumberInput label="Długość zbiórki (dni przed):" bind:value={dniPrzed} min={1} max={90} step={1} decimals={0} name="dni-przed" /></div></div>
+    <div class="col" style="flex: 1"><div onfocusin={() => (touched = true)}><NumberInput label="Dopuszczalny poślizg (dni po terminie):" bind:value={dniPo} min={0} max={3} step={1} decimals={0} name="dni-po" /></div></div>
     <div class="col" style="flex: 2">
       <Alert kind="info" html={`📅 <strong>${czyGlos ? "Okno zbiórki przed zebraniem:" : "Okno zbiórki kwartalnej:"}</strong> od <strong>${dataOd}</strong> do <strong>${data}</strong> (${dniLacznie} dni na terminową wpłatę)${dniPo > 0 ? ` + poślizg do <strong>${dataDo}</strong> (${Math.trunc(dniPo)} dni)` : " (brak poślizgu — termin do dnia wydarzenia)"}.`} />
     </div>

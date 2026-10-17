@@ -4,6 +4,7 @@
   import { filterInterval, INTERVALS, type IntervalCode } from "../../../../shared/calculations";
   import { celestiaColor } from "../../../../shared/celestia";
   import { fmt, zl, kdiColor, glow } from "../../lib/format";
+  import { pyFloatStr } from "../../../../shared/num";
   import { balanceFigure, kdiFigure } from "../../lib/charts";
   import Select from "../../components/Select.svelte";
   import Radio from "../../components/Radio.svelte";
@@ -48,7 +49,7 @@
   const colScore = $derived(celestiaColor(score, isLight));
   const pillarStyle = (v: number) => glow(celestiaColor(v, isLight), 14);
   const ocenaStyle = (v: string) => {
-    const n = parseInt(String(v).replace(" pkt", "").trim());
+    const n = Math.trunc(Number(String(v).replace(" pkt", "").trim()));
     return isNaN(n) ? "" : `color: ${celestiaColor(n * 10, isLight)}; font-weight: 800;`;
   };
   const kadencja = $derived.by(() => {
@@ -131,7 +132,7 @@
         { key: "data_glosowania", label: "Data Głosowania" }, { key: "nazwa", label: "Wydarzenie / Zebranie" }, { key: "okres_zbiorki", label: "Okno Zbiórki" },
         { key: "data_wymagalnosci", label: "Wymagalność do" }, { key: "saldo", label: "Saldo na Termin" }, { key: "wplata", label: "Wpłata w Oknie" },
         { key: "ocena", label: "Ocena (0-100)", style: ocenaStyle }, { key: "status", label: "Status Zdarzenia", wrap: true },
-      ]} rows={osoba.celestia_audyt_glosowan.map((a: any) => ({ ...a, saldo: `${fmt(a.saldo_pln, 2)} zł`, wplata: `${fmt(a.wplata_w_oknie_pln, 2)} zł`, ocena: `${a.punkty} pkt` }))} />
+      ]} rows={osoba.celestia_audyt_glosowan.map((a: any) => ({ ...a, saldo: `${fmt(a.saldo_pln, 2)} zł`, wplata: `${fmt(a.wplata_w_oknie_pln, 2)} zł`, ocena: `${pyFloatStr(a.punkty)} pkt` }))} />
     {:else}
       <Alert kind="info" html="Brak zarejestrowanych terminów głosowań przypadających w trakcie członkostwa tej osoby." />
     {/if}
@@ -143,7 +144,7 @@
         { key: "data", label: "Data Zbiórki" }, { key: "nazwa", label: "Nazwa Zbiórki" }, { key: "okres_zbiorki", label: "Okno Zbiórki" },
         { key: "data_wymagalnosci", label: "Wymagalność do" }, { key: "saldo", label: "Saldo na Termin" }, { key: "wplata", label: "Wpłata w Oknie" },
         { key: "ocena", label: "Ocena (0-100)", style: ocenaStyle }, { key: "status", label: "Status", wrap: true },
-      ]} rows={osoba.celestia_audyt_kwartalny.map((a: any) => ({ ...a, saldo: `${fmt(a.saldo_pln, 2)} zł`, wplata: `${fmt(a.wplata_w_oknie_pln, 2)} zł`, ocena: `${a.punkty} pkt` }))} />
+      ]} rows={osoba.celestia_audyt_kwartalny.map((a: any) => ({ ...a, saldo: `${fmt(a.saldo_pln, 2)} zł`, wplata: `${fmt(a.wplata_w_oknie_pln, 2)} zł`, ocena: `${pyFloatStr(a.punkty)} pkt` }))} />
     {/if}
   {/if}
 {/if}

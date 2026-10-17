@@ -90,6 +90,25 @@ npx tsx scripts/capture-reference.ts http://localhost:8601 tests/e2e/screenshots
 npx tsx scripts/capture-reference.ts http://localhost:8700 tests/e2e/screenshots/new
 ```
 
+### Porównanie treści (tekst każdego ekranu)
+
+`scripts/compare-text.ts` przechodzi oba programy (oryginał i nowy) tą samą ścieżką — sesja administratora przez wszystkie
+zakładki i podzakładki, region, kraj, następnie sesja skarbnika koła — i porównuje cały widoczny tekst (etykiety, wartości pól,
+komórki tabel). Raport trafia do `tests/e2e/results/text-compare.json`.
+
+```bash
+npx tsx scripts/compare-text.ts http://localhost:8601 http://localhost:8700
+```
+
+Ostatni przebieg: 535 wspólnych tekstów w sesji administratora i 378 w sesji skarbnika koła. Pozostałe różnice są wyłącznie
+techniczne lub zamierzone:
+
+* fragmenty widżetów Streamlit („Skip to main content", `keyboard_arrow_right`, składowe daty `2026`/`10`/`17`, LaTeX `ightarrow`);
+* emoji renderowane w tym samym węźle tekstu zamiast osobnego (np. „🎉 Kosz kół jest pusty.");
+* sortowanie regionów wg polskiej kolacji (oryginał na Postgresie z Alpine sortuje bajtowo, więc pierwszym regionem jest „Mazowsze");
+* poprawiony błąd oryginału: koło bez regionu w zakładce Struktura opisane było jako „(nan)", teraz „(Bez regionu)";
+* znaczniki czasu wpisów audytu (różne momenty zasilenia baz).
+
 ---
 
 ## 📁 Struktura

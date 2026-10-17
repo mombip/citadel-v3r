@@ -11,11 +11,14 @@
   let { koloId, koloName, sumy, today }: { koloId: number; koloName: string; sumy: any; today: string } = $props();
   const kategorie = ["Integracja", "Materiały biurowe / Druki", "Wydarzenia / Prelekcje", "Sprzęt", "Inne"];
   let wKwota = $state(50.0);
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let wData = $state(today);
   let wKat = $state(kategorie[0]);
   let wOpis = $state("");
   let wErr = $state("");
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let kStan = $state(sumy.kasaGr / 100);
+  // svelte-ignore state_referenced_locally -- form default captured on mount, like Streamlit's widget value=
   let kData = $state(today);
   let kPowod = $state("Wyrównanie ze stanem wyciągu bankowego");
   let kErr = $state("");
@@ -84,14 +87,14 @@
     <h4>📋 Ostatnie Wydatki Koła</h4>
     {#if hist.wydatki.length}
       <DataTable testid="wydatki-table" columns={[{ key: "id", label: "ID", numeric: true }, { key: "data_wydatku", label: "Data" }, { key: "kwota", label: "Kwota (PLN)", numeric: true }, { key: "kategoria", label: "Kategoria" }, { key: "opis", label: "Opis / Faktura" }]}
-        rows={hist.wydatki.map((w) => ({ ...w, kwota: fmt(w.kwota_gr / 100, 2) }))} />
+        rows={hist.wydatki.map((w) => ({ ...w, kwota: String(w.kwota_gr / 100) }))} />
     {:else}<p class="caption">Brak zarejestrowanych wydatków.</p>{/if}
   </div>
   <div class="col">
     <h4>⚖️ Historia Ręcznych Korekt Kasy</h4>
     {#if hist.korekty.length}
       <DataTable testid="korekty-kasy-table" columns={[{ key: "id", label: "ID", numeric: true }, { key: "data_korekty", label: "Data" }, { key: "delta", label: "Delta (PLN)", numeric: true }, { key: "stan", label: "Nowy Stan (PLN)", numeric: true }, { key: "powod", label: "Powód" }]}
-        rows={hist.korekty.map((k) => ({ ...k, delta: fmt(k.delta_gr / 100, 2), stan: fmt(k.docelowy_stan_gr / 100, 2) }))} />
+        rows={hist.korekty.map((k) => ({ ...k, delta: String(k.delta_gr / 100), stan: String(k.docelowy_stan_gr / 100) }))} />
     {:else}<p class="caption">Brak ręcznych korekt stanu kasy.</p>{/if}
   </div>
 </div>
