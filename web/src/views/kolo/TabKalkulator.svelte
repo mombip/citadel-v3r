@@ -159,7 +159,7 @@
       <div class="col"><BentoCard title="Naliczone Składki" value={`${fmt(sim.totalGr / 100, 2, { thousands: true })} PLN`} sub={`${sim.months} msc | Próg bieżący: ${tier[0]}${sim.functionalGr > 0 ? ` (+${fmt(sim.functionalGr / 100, 2)} zł funkcyjne)` : ""}`} accent="accent-cyan" /></div>
     </div>
     {#if detale.length}
-      <Alert kind="info" html={`📋 <strong>Rozbicie naliczeń w okresie symulacji:</strong><br><br>${detale.join("<br>")}`} />
+      <Alert kind="info" preLine html={`📋 <strong>Rozbicie naliczeń w okresie symulacji:</strong>\n\n${detale.join("\n")}`} />
     {/if}
     <h5>📋 Rekomendacja dla wpłacającego:</h5>
     {#if saldoKoncowe >= 0}

@@ -31,12 +31,7 @@ await page.locator('input[type="password"]').fill("Admin1234!");
 await page.getByRole("button", { name: "Zaloguj do systemu" }).click();
 await settle();
 await page.waitForTimeout(3000);
-// Same unit in both apps (the original sorts regions byte-wise, so it opens Mazowsze / Koło Radom first).
-if (await page.locator("select[name=region]").count()) {
-  await page.locator("select[name=region]").selectOption({ label: "Mazowsze" });
-  await page.locator("select[name=kolo]").selectOption({ label: "Koło Radom" });
-  await page.waitForTimeout(800);
-}
+// Both apps open the first region by Polish collation (reference DB uses ICU pl-PL), so no override is needed.
 await shot("01-kolo-zbiorcza");
 
 const tabs = [
@@ -80,7 +75,7 @@ await shot("21b-kraj-wykres");
 await page.getByRole("button", { name: /Fiolet/ }).click();
 await settle();
 await shot("30-kraj-dark-mono");
-await page.getByText("🏢 Koło", { exact: true }).click();
+await page.getByText("🏢 Koło", { exact: true }).first().click();
 await settle();
 await shot("31-kolo-dark-mono");
 await page.getByRole("button", { name: /Ciemny/ }).click();

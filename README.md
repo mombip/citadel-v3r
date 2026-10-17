@@ -95,7 +95,11 @@ na dowolnej instancji i zapisuje zrzuty ekranu:
 # oryginał (Streamlit) na tych samych danych demo:
 docker run -d --name citadel-ref-pg -e POSTGRES_USER=citadel -e POSTGRES_PASSWORD=citadel -e POSTGRES_DB=citadel_db -p 55432:5432 postgres:16-alpine
 DATABASE_URL=postgresql://citadel:citadel@localhost:55432/citadel_db npm run seed:reference
-(cd ../Citadel-V3/citadel && DATABASE_URL=postgresql://citadel:citadel@localhost:55432/citadel_db uv run streamlit run app.py --server.port 8601)
+# Polska kolacja (ICU), żeby oryginał sortował regiony tak jak nowa aplikacja:
+docker exec citadel-ref-pg pg_dump -U citadel -d citadel_db -Fc -f /tmp/ref.dump
+docker exec citadel-ref-pg psql -U citadel -d citadel_db -c "CREATE DATABASE citadel_pl TEMPLATE template0 LOCALE_PROVIDER icu ICU_LOCALE 'pl-PL' LOCALE 'C.UTF-8'"
+docker exec citadel-ref-pg pg_restore -U citadel -d citadel_pl --no-owner /tmp/ref.dump
+(cd ../Citadel-V3/citadel && DATABASE_URL=postgresql://citadel:citadel@localhost:55432/citadel_pl uv run streamlit run app.py --server.port 8601)
 npx tsx scripts/capture-reference.ts http://localhost:8601 tests/e2e/screenshots/reference
 # nowa aplikacja:
 npx tsx scripts/capture-reference.ts http://localhost:8700 tests/e2e/screenshots/new
@@ -111,7 +115,7 @@ komórki tabel). Raport trafia do `tests/e2e/results/text-compare.json`.
 npx tsx scripts/compare-text.ts http://localhost:8601 http://localhost:8700
 ```
 
-Ostatni przebieg: 536 wspólnych tekstów w sesji administratora i 379 w sesji skarbnika koła. Pozostałe różnice są wyłącznie
+Ostatni przebieg (baza referencyjna z kolacją pl-PL): na poziomie słów w sesji skarbnika koła brakuje 0 z 658 słów, w sesji administratora 5 z 832 — źródło TeX niewidocznej strzałki, błąd „(nan)” oryginału i trzy znaczniki czasu audytu. Pozostałe różnice są wyłącznie
 techniczne lub zamierzone:
 
 * fragmenty widżetów Streamlit („Skip to main content", `keyboard_arrow_right`, składowe daty `2026`/`10`/`17`, LaTeX `
@@ -132,6 +136,11 @@ npx tsx scripts/compare-pixels.ts
 ```
 
 ---
+
+## 🎨 Logo
+
+* `web/public/logo.svg` — znak główny (inicjał „C” ze złotą monetą), favicona i ikona aplikacji.
+* `web/public/citadel-wordmark.svg` — pełne logo: znak słowny „Citadel for NG” (Noto Serif Italic zamieniony na krzywe, 1024×1024).
 
 ## 📁 Struktura
 

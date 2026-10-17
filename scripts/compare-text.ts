@@ -18,7 +18,7 @@ const norm = (s: string) =>
     .replace(/→|➔/g, "→");
 
 const EXTRACT = `(isRef) => {
-  const root = isRef ? document.querySelector('[data-testid="stAppViewContainer"]') : document.querySelector('.app');
+  const root = isRef ? document.querySelector('[data-testid="stAppViewContainer"]') : document.querySelector('#app');
   const out = [];
   if (!root) return out;
   const walk = (n) => {
@@ -74,11 +74,6 @@ async function run(base: string, isRef: boolean) {
   await page.locator(isRef ? 'input[type="password"]' : "#haslo").fill("Admin1234!");
   await page.getByRole("button", { name: "Zaloguj do systemu" }).click();
   await page.waitForTimeout(isRef ? 4000 : 1500);
-  if (!isRef) {
-    await page.locator("select[name=region]").selectOption({ label: "Mazowsze" });
-    await page.locator("select[name=kolo]").selectOption({ label: "Koło Radom" });
-    await page.waitForTimeout(800);
-  }
   await grab("01-zbiorcza");
   const tabs: [RegExp, string][] = [
     [/Profile & Wykresy/, "02-profile"], [/Celestia & Głosowania/, "03-celestia"], [/Wpłaty Członków/, "04-wplaty"],

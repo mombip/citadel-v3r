@@ -20,7 +20,8 @@
   });
 </script>
 
-<div class="app">
+<a class="skip-link" href="#main">Skip to main content</a>
+<div class="app" id="main">
   {#if !app.booted}
     <div class="spinner">Ładowanie…</div>
   {:else if !app.user}

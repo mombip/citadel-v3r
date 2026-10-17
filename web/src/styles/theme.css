@@ -407,3 +407,7 @@ details.expander > .content { padding: 0 1rem 1rem; }
 /* The original's light theme inverts the data-grid canvas, which renders table bodies grey. */
 :root[data-theme="light_mono"] table.df th { background: #dadadd; }
 :root[data-theme="light_mono"] table.df td { background: #dedee0; }
+
+.skip-link { position: absolute; left: 8px; top: -48px; z-index: 100; padding: 8px 12px; border-radius: 8px; background: var(--card-bg); color: var(--text); border: 1px solid var(--input-focus); }
+.skip-link:focus { top: 8px; }
+.alert .ico { margin-right: 0.15rem; }

@@ -78,7 +78,7 @@
 </div>
 
 {#if can(user.rola, "akceptuje_wplaty") && dict.pendingCount > 0}
-  <Alert kind="warning" html={`🔔 <strong>Kolejka Weryfikacji:</strong> Wpłaty czekające na Twoją akceptację: <strong>${dict.pendingCount}</strong>. Przejdź do widoku <strong>🏢 Koło → 📥 Wpłaty do zaakceptowania</strong>.`} />
+  <Alert kind="warning" html={`🔔 <strong>Kolejka Weryfikacji:</strong> Wpłaty czekające na Twoją akceptację: <strong>${dict.pendingCount}</strong>. Przejdź do widoku <strong>🏢 Koło</strong> → <strong>📥 Wpłaty do zaakceptowania</strong>.`} />
 {/if}
 
 <style>
