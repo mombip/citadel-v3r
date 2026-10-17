@@ -13,6 +13,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "seed:reference": "tsx scripts/seed-reference.ts",
+    "ops:diff": "bash scripts/ops-diff/run.sh",
     "parity:gen": "python tests/parity/gen_python_cases.py ../Citadel-V3/citadel tests/parity/python-cases.json",
     "db:pull-prod": "bash scripts/db-pull-prod.sh",
     "db:restore": "bash scripts/db-pull-prod.sh --restore-only",

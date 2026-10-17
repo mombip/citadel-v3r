@@ -60,7 +60,8 @@ Katalog `backups/` jest w `.gitignore` — zrzuty zawierają dane produkcyjne.
   (generowaną przez `npx tsx scripts/gen-netlify-migration.ts`), stosowaną przy każdym wdrożeniu. Wyzwalacze audytu
   instaluje aplikacja przy starcie, jak oryginał.
 * Zmienne: `SESSION_SECRET` (ustawiona), opcjonalnie `DATABASE_URL` (nadpisuje Netlify Database), `SKIP_SCHEMA_INIT=1`.
-* Wdrożenie: `npx netlify deploy --prod --build`.
+* Wdrożenie: `npx netlify deploy --prod --build` — **każde wdrożenie zużywa limit Netlify; wykonuj je tylko na wyraźne
+  polecenie właściciela.** Repozytorium GitHub nie jest połączone z Netlify, więc `git push` niczego nie wdraża.
 * Dane zostały zaimportowane jednorazowo ze zrzutu Citadel V3 migracją `*_import_citadel_data`, która zawiera dane
   rzeczywiste i **nie jest w repozytorium** (`.gitignore`). Wdrożenie z innej kopii repozytorium pominie ten plik;
   Netlify zgłosi wtedy brak zastosowanej migracji — należy wdrażać z tej kopii lub zachować plik lokalnie.
@@ -146,6 +147,24 @@ ightarrow`);
 ```bash
 npx tsx scripts/compare-pixels.ts
 ```
+
+### Zgodność funkcjonalna (test różnicowy, `scripts/ops-diff`)
+
+Ten sam scenariusz operacji wykonywany przez interfejs **obu** aplikacji, każda na własnej, identycznej kopii danych
+(`citadel_ops_ref` dla oryginału, `citadel_ops_new` dla nowej wersji). Potem porównywana jest cała zawartość obu baz
+(wszystkie tabele + dziennik audytu, łącznie z identyfikatorami) oraz komunikaty walidacji pokazane przez oba programy.
+
+```bash
+bash scripts/ops-diff/reset-dbs.sh                 # jednorazowo: utwórz obie bazy z citadel_real
+# oryginał na 8602 i nowa wersja na 8702 (polecenia w nagłówku scripts/ops-diff/run.sh), potem:
+npm run ops:diff                                    # reset danych, scenariusz w obu aplikacjach, porównanie
+```
+
+Scenariusz (`scripts/ops-diff/scenario.ts`): wpłaty (duplikat 60 s, kolejka, edycja, usunięcie), ręczne naliczenia,
+korekty salda i kasy z datą wsteczną, członkowie (walidacje, edycja krytyczna, usunięcie z wpłatami), terminy Celestii,
+deklaracja skarbnika koła i akceptacja/odrzucenie, struktura (regiony, koła, kosz, przywracanie, trwałe usuwanie),
+konta (tworzenie, blokada, rola, reset hasła, usunięcie, wymuszona zmiana hasła) i kalkulator.
+Lepsze rozwiązania niż w oryginale zapisujemy w `docs/IMPROVEMENTS.md`.
 
 ---
 

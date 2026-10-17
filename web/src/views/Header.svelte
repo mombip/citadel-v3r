@@ -28,7 +28,7 @@
 
 <div class="cols header" data-testid="header">
   <div class="col" style="flex: 1.7">
-    <h1 class="app-title"><img src="/logo.svg" alt="" width="40" height="40" /><Wordmark height={30} /></h1>
+    <h1 class="app-title"><Wordmark stacked height={58} /></h1>
   </div>
   <div class="col" style="flex: 0.8">
     {#if seesCountry}
