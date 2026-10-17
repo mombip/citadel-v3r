@@ -100,14 +100,25 @@ komórki tabel). Raport trafia do `tests/e2e/results/text-compare.json`.
 npx tsx scripts/compare-text.ts http://localhost:8601 http://localhost:8700
 ```
 
-Ostatni przebieg: 535 wspólnych tekstów w sesji administratora i 378 w sesji skarbnika koła. Pozostałe różnice są wyłącznie
+Ostatni przebieg: 536 wspólnych tekstów w sesji administratora i 379 w sesji skarbnika koła. Pozostałe różnice są wyłącznie
 techniczne lub zamierzone:
 
-* fragmenty widżetów Streamlit („Skip to main content", `keyboard_arrow_right`, składowe daty `2026`/`10`/`17`, LaTeX `ightarrow`);
+* fragmenty widżetów Streamlit („Skip to main content", `keyboard_arrow_right`, składowe daty `2026`/`10`/`17`, LaTeX `
+ightarrow`);
 * emoji renderowane w tym samym węźle tekstu zamiast osobnego (np. „🎉 Kosz kół jest pusty.");
 * sortowanie regionów wg polskiej kolacji (oryginał na Postgresie z Alpine sortuje bajtowo, więc pierwszym regionem jest „Mazowsze");
 * poprawiony błąd oryginału: koło bez regionu w zakładce Struktura opisane było jako „(nan)", teraz „(Bez regionu)";
 * znaczniki czasu wpisów audytu (różne momenty zasilenia baz).
+
+### Porównanie pikselowe
+
+`scripts/compare-pixels.ts` porównuje zrzuty z `tests/e2e/screenshots/reference` i `tests/e2e/screenshots/new`
+(piksel zgodny = różnica każdego kanału RGB ≤ 40). Ostatni przebieg: średnio **93.3%** zgodnych pikseli na 24 ekranach
+(zakres 89.9–96.1%). Resztę stanowią różnice renderowania czcionek i natywnych kontrolek (np. format daty).
+
+```bash
+npx tsx scripts/compare-pixels.ts
+```
 
 ---
 

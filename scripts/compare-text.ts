@@ -137,4 +137,17 @@ for (const name of Object.keys(ref)) {
 }
 const dump = (x: Record<string, Set<string>>) => Object.fromEntries(Object.entries(x).map(([k, v]) => [k, [...v]]));
 writeFileSync(outFile, JSON.stringify({ report, reference: dump(ref), current: dump(neu) }, null, 2));
-console.log(`\nTotal texts present only in the original: ${totalRefOnly}`);
+// Streamlit keeps every tab in the DOM, so per-screen counts overstate differences; compare whole sessions instead.
+const union = (src: Record<string, Set<string>>, keys: string[]) => new Set(keys.flatMap((k) => [...(src[k] ?? [])]));
+const sessions: Record<string, string[]> = {
+  admin: Object.keys(ref).filter((k) => !k.startsWith("4") && k !== "00-login"),
+  "unit treasurer": Object.keys(ref).filter((k) => k.startsWith("4")),
+};
+console.log(`\nPer-screen sum (inflated by Streamlit's hidden tabs): ${totalRefOnly}`);
+for (const [name, keys] of Object.entries(sessions)) {
+  const a = union(ref, keys);
+  const b = union(neu, keys);
+  const onlyRef = [...a].filter((t) => !b.has(t) && !t.startsWith("{"));
+  console.log(`\n### ${name} session: ${[...a].filter((t) => b.has(t)).length} texts in both apps, ${onlyRef.length} only in the original`);
+  if (onlyRef.length) console.log("  " + onlyRef.map((t) => JSON.stringify(t)).join(" | "));
+}

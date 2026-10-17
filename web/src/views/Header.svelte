@@ -27,7 +27,7 @@
 
 <div class="cols header" data-testid="header">
   <div class="col" style="flex: 1.7">
-    <h1 style="font-size: 1.6rem; font-weight: 700; margin: 0; padding-top: 1.6rem;">Citadel for NG</h1>
+    <h1 style="font-size: 1.6rem; font-weight: 700; margin: 0; padding-top: 1.2rem;">Citadel for NG</h1>
   </div>
   <div class="col" style="flex: 0.8">
     {#if seesCountry}
@@ -66,7 +66,7 @@
   <div class="col" style="flex: 1.1">
     <div style="font-size: 0.8rem; font-weight: 600; color: #94a3b8;">{user.imie_nazwisko}</div>
     <span class="user-pill" data-testid="user-pill">{roleLabel(user.rola)}</span>
-    <div class="cols" style="margin-top: 0.6rem;">
+    <div class="cols" style="margin-top: 1rem;">
       <div class="col"><button class="btn full" type="button" onclick={() => app.logout()} data-testid="btn-logout">Wyloguj</button></div>
       <div class="col">
         <button class="btn secondary full" type="button" onclick={() => app.cycleTheme()} data-testid="btn-theme" title="Kliknij, aby przełączyć motyw: 💜 Fiolet ➔ 🖤 Ciemny Mono ➔ 🤍 Jasny Mono">
