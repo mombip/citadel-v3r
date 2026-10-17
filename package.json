@@ -14,6 +14,8 @@
     "test:e2e:ui": "playwright test --ui",
     "seed:reference": "tsx scripts/seed-reference.ts",
     "ops:diff": "bash scripts/ops-diff/run.sh",
+    "db:migrate": "tsx scripts/supabase/migrate-data.ts",
+    "db:verify": "tsx scripts/supabase/migrate-data.ts --verify-only",
     "parity:gen": "python tests/parity/gen_python_cases.py ../Citadel-V3/citadel tests/parity/python-cases.json",
     "db:pull-prod": "bash scripts/db-pull-prod.sh",
     "db:restore": "bash scripts/db-pull-prod.sh --restore-only",
@@ -27,6 +29,8 @@
     "@electric-sql/pglite": "^0.5.10",
     "@hono/node-server": "^2.1.5",
     "@netlify/database": "^2.0.1",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.118.0",
     "hono": "^4.13.13",
     "postgres": "^3.4.9",
     "zod": "^4.6.7"

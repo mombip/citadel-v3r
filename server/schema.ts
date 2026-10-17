@@ -241,10 +241,38 @@ export const AUDITED_TABLES = [
 
 export const DEFAULT_ADMIN_PASSWORD = "Centauri2026!";
 
+/**
+ * Supabase only (no-op elsewhere): the `public` schema is reachable through Supabase's Data API with the publishable
+ * key, and new tables get default grants for the API roles. The app talks to PostgreSQL directly as the owner, so the
+ * API roles need nothing: revoke them, enable RLS without policies (defence in depth) and make the views run with the
+ * caller's rights. Idempotent; runs on every cold start together with the rest of the schema.
+ */
+export const SUPABASE_HARDENING_DDL = `
+DO $$
+DECLARE t text;
+BEGIN
+  IF (SELECT count(*) FROM pg_roles WHERE rolname IN ('anon', 'authenticated')) = 2 THEN
+    FOR t IN SELECT unnest(ARRAY[${AUDITED_TABLES.map((t) => `'${t}'`).join(", ")}]) LOOP
+      EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
+      EXECUTE format('REVOKE ALL ON TABLE public.%I FROM anon, authenticated', t);
+    END LOOP;
+    FOR t IN SELECT unnest(ARRAY['aktywne_regiony', 'aktywne_kola']) LOOP
+      EXECUTE format('ALTER VIEW public.%I SET (security_invoker = true)', t);
+      EXECUTE format('REVOKE ALL ON TABLE public.%I FROM anon, authenticated', t);
+    END LOOP;
+    FOR t IN SELECT sequencename FROM pg_sequences WHERE schemaname = 'public' LOOP
+      EXECUTE format('REVOKE ALL ON SEQUENCE public.%I FROM anon, authenticated', t);
+    END LOOP;
+    REVOKE EXECUTE ON FUNCTION public.audit_trigger_func() FROM anon, authenticated;
+  END IF;
+END $$;
+`;
+
 export async function initSchema(db: Db): Promise<void> {
   await db.exec(DDL_SCHEMA_EXPORT);
   await db.exec(EXTRA_DDL);
   await db.exec(AUDIT_TRIGGER_DDL);
+  await db.exec(SUPABASE_HARDENING_DDL);
   const admins = await db.scalar<number>("SELECT COUNT(*) FROM uzytkownicy WHERE rola = 'ADMIN'");
   if (Number(admins) === 0) {
     const salt = generateSalt();

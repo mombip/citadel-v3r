@@ -49,10 +49,29 @@ function withHelpers(q: Pick<Queryable, "query" | "exec">): Queryable {
   };
 }
 
+/**
+ * Driver options derived from the connection string:
+ *  - ssl: required for any remote server (Supabase, Neon); the driver ignores `sslmode` in the URL, so it is set here;
+ *  - prepare: off behind a transaction-mode pooler (Supabase Supavisor on port 6543, or `?pgbouncer=true`),
+ *    because prepared statements are bound to one server connection and the pooler hands out different ones.
+ */
+export function postgresOptions(url: string): { ssl: false | "require"; prepare: boolean; pooled: boolean } {
+  const u = new URL(url);
+  const local = ["localhost", "127.0.0.1", "[::1]", "::1"].includes(u.hostname);
+  const pooled = u.port === "6543" || u.searchParams.get("pgbouncer") === "true";
+  return { ssl: local ? false : "require", prepare: !pooled, pooled };
+}
+
 export async function openPostgres(url: string): Promise<Db> {
   const postgres = (await import("postgres")).default;
+  const o = postgresOptions(url);
   const sql = postgres(url, {
     max: 5,
+    ssl: o.ssl,
+    prepare: o.prepare,
+    // serverless-friendly: give idle connections back quickly, fail fast when the server is unreachable
+    idle_timeout: 20,
+    connect_timeout: 15,
     onnotice: () => {},
     types: {
       bigint: { to: 20, from: [20], serialize: (x: unknown) => String(x), parse: Number },
