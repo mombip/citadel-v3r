@@ -52,25 +52,49 @@ przegląd wizualny: arkusze porównawcze `scripts/contact-sheets.ts` (oryginał 
 ## Dane rzeczywiste (zrzut produkcyjny z 2026-10-17)
 
 Oba programy uruchomione na tej samej lokalnej kopii zrzutu (15 kół, 73 członków, 438 wpisów audytu), z dwoma kontami testowymi
-dodanymi tylko w kopii. Zrzuty ekranów z danymi rzeczywistymi nie są w repozytorium (`tests/e2e/results/real`, gitignored).
+dodanymi tylko w kopii. Zrzuty ekranów z danymi rzeczywistymi powstają poza repozytorium i nie są w nim zapisywane.
 
 | Sesja | Słowa oryginału | Brakujące w nowej aplikacji |
 | :--- | ---: | :--- |
 | Skarbnik koła | 689 | 0 |
 | Administrator | 952 | 2 — czasy ostatniego logowania kont testowych (logowania w różnych chwilach) |
 
-Zgodność pikseli na danych rzeczywistych: średnio **94.1%** (91.6–99.0% na ekran).
+Zgodność pikseli na danych rzeczywistych (przebieg po zmianie znaku i wyszukiwania, 2026-10-17): średnio **93.9%**
+(91.5–96.0% na ekran), 24 pary ekranów przejrzane na arkuszach porównawczych — wszystkie zgodne. Różnice to wyłącznie zamierzone
+(znak „Citadel for NG” i ikona C w nagłówku, dwuwierszowy znak na logowaniu), natywny format pól daty oraz chwilowe
+podpowiedzi przycisków w oryginale.
+
+| Ekran | Piksele | Ekran | Piksele |
+| :--- | ---: | :--- | ---: |
+| 00 Logowanie | 96.0% | 12 Logi Audytowe | 92.6% |
+| 01 Tabela Zbiorcza | 91.5% | 13 Panel Centauri | 92.1% |
+| 02 Profile & Wykresy | 94.2% | 20 Statystyki Regionu | 94.0% |
+| 03 Celestia (ranking) | 94.1% | 21 Statystyki Kraju | 95.4% |
+| 03b Celestia (rejestr) | 92.4% | 21b Kraj · Porównanie KDI | 93.7% |
+| 04 Wpłaty Członków | 95.2% | 30 Kraj · Ciemny | 94.3% |
+| 05 Ręczne Naliczenia | 95.4% | 31 Koło · Ciemny | 92.7% |
+| 06 Kasa Koła | 93.8% | 32 Koło · Jasny | 92.0% |
+| 07 Korekta Salda | 95.0% | 33 Celestia · Jasny | 95.0% |
+| 08 Zarządzaj Członkami | 94.9% | 40 Skarbnik · Tabela | 92.1% |
+| 09 Kalkulator | 92.8% | 41 Skarbnik · Wpłaty | 93.8% |
+| 10 Wpłaty do zaakceptowania | 95.7% | | |
+| 11 Zarządzaj Strukturą | 94.1% | | |
+
 Etykieta „nan” oryginału (koło bez regionu w koszu i w listach struktury) odtworzona 1:1.
 
 ## Wyszukiwanie w listach rozwijanych (`scripts/compare-search.ts`)
 
 Algorytm przeniesiony 1:1 z frontendu Streamlit (fzy: dopasowanie podciągu bez rozróżniania wielkości liter,
-ranking wg tych samych wag). Porównanie listy członków na danych rzeczywistych:
+ranking wg tych samych wag). Porównanie na danych rzeczywistych (`SEARCH_LABEL`, `SEARCH_NAME`, `SEARCH_VIEW`, `SEARCH_TAB`):
 
-| Zapytanie | Wyniki identyczne i w tej samej kolejności |
-| :--- | :--- |
-| `Mati`, `kow`, `lodz`, `łódź`, `ann`, `ewa`, `zz` | 7 z 7 (dla wszystkich wierszy renderowanych przez oryginał) |
+| Lista | Zapytania | Wyniki identyczne i w tej samej kolejności |
+| :--- | :--- | :--- |
+| Członek (Profile & Wykresy) | `Mati`, `kow`, `lodz`, `łódź`, `ann`, `ewa`, `zz` | 7 z 7 |
+| Koło (Wybierz Koło z regionu) | `ko`, `kra`, `ol`, `łó`, `zz` | 5 z 5 |
+| Aktywny Region (nagłówek) | `po`, `ma`, `zz`, `ł` | 4 z 4 |
 
+Porównywane są wszystkie wiersze renderowane przez oryginał (jego lista jest wirtualizowana). Inne listy rozwijane korzystają
+z tego samego komponentu `Select.svelte` i tej samej funkcji `fuzzyFilter`.
 Jedyna różnica: przy braku wyników oryginał pokazuje angielskie „No results”, nowa wersja „Brak wyników”.
 
 ## Zamierzone różnice (na życzenie właściciela)

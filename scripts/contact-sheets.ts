@@ -1,7 +1,7 @@
 /**
  * Builds side-by-side contact sheets (original | new) for every screenshot pair, 4 pairs per sheet,
  * into tests/e2e/results/sheets. Each pair shows the first 1000 px of both screens.
- * Usage: npx tsx scripts/contact-sheets.ts [refDir] [newDir]
+ * Usage: npx tsx scripts/contact-sheets.ts [refDir] [newDir] [outDir]
  */
 import { chromium } from "@playwright/test";
 import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
@@ -9,7 +9,7 @@ import { join } from "node:path";
 
 const refDir = process.argv[2] || "tests/e2e/screenshots/reference";
 const newDir = process.argv[3] || "tests/e2e/screenshots/new";
-const out = "tests/e2e/results/sheets";
+const out = process.argv[4] || "tests/e2e/results/sheets";
 mkdirSync(out, { recursive: true });
 const files = readdirSync(refDir).filter((f) => f.endsWith(".png") && existsSync(join(newDir, f))).sort();
 const uri = (p: string) => "data:image/png;base64," + readFileSync(p).toString("base64");

@@ -2,6 +2,8 @@
  * Compares type-to-search results of the member dropdown (Profile tab) between the original Streamlit app and the
  * new app, for a list of queries. Prints the top results of both side by side.
  * Usage: npx tsx scripts/compare-search.ts http://localhost:8601 http://localhost:8700 Mati Ania kow
+ * Another dropdown: SEARCH_LABEL (regex of the original's label) and SEARCH_NAME (new app's field name),
+ * optionally SEARCH_VIEW (view radio text, e.g. "🏢 Koło") and SEARCH_TAB (tab to open; empty = stay on the first tab).
  */
 import { chromium, type Page } from "@playwright/test";
 
@@ -9,6 +11,10 @@ const [refBase, newBase, ...argQueries] = process.argv.slice(2);
 const queries = argQueries.length ? argQueries : ["Mati", "kow", "lodz", "ann", "zz"];
 const ADMIN = { login: process.env.PARITY_ADMIN_LOGIN || "admin2", password: process.env.PARITY_ADMIN_PASSWORD || "Admin1234!" };
 const TOP = 8;
+const LABEL = new RegExp(process.env.SEARCH_LABEL || "Wybierz członka do analizy wskaźników");
+const NAME = process.env.SEARCH_NAME || "profil-czlonek";
+const TAB = process.env.SEARCH_TAB ?? "Profile & Wykresy";
+const VIEW = process.env.SEARCH_VIEW || "";
 
 async function open(base: string, isRef: boolean) {
   const browser = await chromium.launch();
@@ -18,15 +24,21 @@ async function open(base: string, isRef: boolean) {
   await page.locator('input[type="password"]').fill(ADMIN.password);
   await page.getByRole("button", { name: "Zaloguj do systemu" }).click();
   await page.waitForTimeout(isRef ? 4000 : 1500);
-  await page.getByRole("tab", { name: /Profile & Wykresy/ }).first().click();
-  await page.waitForTimeout(isRef ? 2500 : 800);
+  if (VIEW) {
+    await page.getByText(VIEW, { exact: true }).first().click();
+    await page.waitForTimeout(isRef ? 2500 : 800);
+  }
+  if (TAB) {
+    await page.getByRole("tab", { name: new RegExp(TAB.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) }).first().click();
+    await page.waitForTimeout(isRef ? 2500 : 800);
+  }
   return { browser, page };
 }
 
 async function search(page: Page, isRef: boolean, q: string): Promise<string[]> {
   if (isRef) {
     // Streamlit selectbox (BaseWeb): click it, type, read the listbox options.
-    const box = page.getByLabel("Wybierz członka do analizy wskaźników");
+    const box = page.getByLabel(LABEL).first();
     await box.click();
     await page.keyboard.type(q);
     await page.waitForTimeout(600);
@@ -35,11 +47,11 @@ async function search(page: Page, isRef: boolean, q: string): Promise<string[]> 
     await page.waitForTimeout(300);
     return opts.map((t) => t.trim()).filter(Boolean);
   }
-  const input = page.locator("input[name=profil-czlonek]");
+  const input = page.locator(`input[name="${NAME}"]`);
   await input.click();
   await input.fill(q);
   await page.waitForTimeout(200);
-  const opts = await page.locator('[id="profil-czlonek-list"] [role="option"]').allTextContents();
+  const opts = await page.locator(`[id="${NAME}-list"] [role="option"]`).allTextContents();
   await input.press("Escape");
   return opts.map((t) => t.trim());
 }
