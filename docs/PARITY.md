@@ -72,6 +72,10 @@ wyniki kalkulatora i dane wykresów pokazane przez oba programy.
 | Wykresy | oś salda i dynamika KDI dla 3 członków × 3 interwały, rozkład Celestii, porównania KDI regionu i kraju | dane wszystkich serii identyczne |
 | Kopia zapasowa | pobranie przez UI, odtworzenie do pustej bazy | obie odtwarzają się do kopii bazy; nowa wersja co do mikrosekundy |
 
+**Ostatni pełny przebieg (2026-10-17, po restarcie systemu): 13 z 13 kroków w obu aplikacjach, 13 tabel identycznych
+(46 nowych wpisów audytu), wszystkie komunikaty, wyniki kalkulatora i dane wykresów identyczne, obie kopie zapasowe
+odtwarzają się poprawnie; kopia nowej wersji jest dokładną kopią bazy co do bajtu.**
+
 Wszystkie komunikaty walidacji mają identyczną treść. Sukcesy oryginał gubi przy `st.rerun()`; nowa wersja pokazuje je
 jako powiadomienia — to i inne świadome usprawnienia są w `docs/IMPROVEMENTS.md`.
 
