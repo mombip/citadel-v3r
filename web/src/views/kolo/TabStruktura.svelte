@@ -62,7 +62,9 @@
   // Trash
   let permK = $state<Record<number, boolean>>({});
   let permR = $state<Record<number, boolean>>({});
-  let errTrash = $state("");
+  // Trash errors are shown under the button that caused them (the original renders st.error in the item's column).
+  let errTrash = $state({ key: "", msg: "" });
+  const trashErr = (key: string) => (m: string) => (errTrash = { key, msg: m });
 </script>
 
 <h3>🏛️ Zarządzanie Architekturą Organizacji</h3>
@@ -161,7 +163,6 @@
   <h4>♻️ Elementy w Koszu (Archiwum)</h4>
   <p class="caption">Elementy przeniesione do kosza są niewidoczne w systemie operacyjnym. Możesz je w każdej chwili przywrócić lub trwale usunąć.</p>
   <Tabs labels={["🏢 Koła w Koszu", "🌍 Regiony w Koszu"]} bind:active={koszSub} testid="kosz-tabs" />
-  {#if errTrash}<Alert kind="error" html={errTrash} />{/if}
   {#if koszSub === 0}
     {#if !s.kolaKosz.length}
       <Alert kind="success" html="🎉 Kosz kół jest pusty." />
@@ -172,14 +173,16 @@
           <p><strong>🏢 {k.nazwa}</strong> | Region: <strong>{k.region_nazwa ?? "nan"}</strong> | Usunięto: <code>{formatTimePL(k.deleted_at)}</code></p>
           {#if k.region_w_koszu}<Alert kind="warning" html={`⚠️ Region nadrzędny ('${k.region_nazwa}') znajduje się w koszu. Aby przywrócić to koło, musisz najpierw przywrócić jego region.`} />{/if}
           <div class="cols">
-            <div class="col"><button class="btn" type="button" onclick={() => run(() => post(`/kola/${k.id}/restore`), `Koło '${k.nazwa}' zostało przywrócone.`, (m) => (errTrash = m))}>🟢 Przywróć koło: {k.nazwa}</button></div>
+            <div class="col"><button class="btn" type="button" onclick={() => run(() => post(`/kola/${k.id}/restore`), `Koło '${k.nazwa}' zostało przywrócone.`, trashErr(`k${k.id}-restore`))}>🟢 Przywróć koło: {k.nazwa}</button>
+              {#if errTrash.key === `k${k.id}-restore` && errTrash.msg}<Alert kind="error" html={errTrash.msg} />{/if}</div>
             <div class="col" style="flex: 1.2">
               {#if can(role, "zarzadza_koszem")}
                 <Expander title={`🔥 Trwałe usunięcie (${k.nazwa})`}>
                   <Alert kind="error" html="⚠️ Ta operacja jest NIEODWRACALNA! Usunie wszystkie wpłaty, wydatki i historię członków tego koła." />
                   <Checkbox label={`Trwale usuń dane koła ${k.nazwa}`} checked={permK[k.id] ?? false} name={`perm-k-${k.id}`} />
                   <label class="checkbox" style="display:none"><input type="checkbox" bind:checked={permK[k.id]} /></label>
-                  <button class="btn" type="button" onclick={() => { if (!permK[k.id]) return void (errTrash = "Musisz zaznaczyć checkbox potwierdzający."); run(() => del(`/kola/${k.id}`), `Koło '${k.nazwa}' zostało trwale usunięte z bazy.`, (m) => (errTrash = m)); }}>🔥 Usuń trwale z bazy #{k.id}</button>
+                  <button class="btn" type="button" onclick={() => { if (!permK[k.id]) return void trashErr(`k${k.id}-perm`)("Musisz zaznaczyć checkbox potwierdzający."); run(() => del(`/kola/${k.id}`), `Koło '${k.nazwa}' zostało trwale usunięte z bazy.`, trashErr(`k${k.id}-perm`)); }}>🔥 Usuń trwale z bazy #{k.id}</button>
+                  {#if errTrash.key === `k${k.id}-perm` && errTrash.msg}<Alert kind="error" html={errTrash.msg} />{/if}
                 </Expander>
               {/if}
             </div>
@@ -195,13 +198,15 @@
       <div data-testid="kosz-region">
         <p><strong>🌍 {r.nazwa}</strong> | Podległe koła w archiwum: <strong>{r.powiazane_kola}</strong> | Usunięto: <code>{formatTimePL(r.deleted_at)}</code></p>
         <div class="cols">
-          <div class="col"><button class="btn" type="button" onclick={() => run(() => post(`/regiony/${r.id}/restore`), `Region '${r.nazwa}' oraz jego koła zostały pomyślnie przywrócone.`, (m) => (errTrash = m))}>🟢 Przywróć region: {r.nazwa}</button></div>
+          <div class="col"><button class="btn" type="button" onclick={() => run(() => post(`/regiony/${r.id}/restore`), `Region '${r.nazwa}' oraz jego koła zostały pomyślnie przywrócone.`, trashErr(`r${r.id}-restore`))}>🟢 Przywróć region: {r.nazwa}</button>
+            {#if errTrash.key === `r${r.id}-restore` && errTrash.msg}<Alert kind="error" html={errTrash.msg} />{/if}</div>
           <div class="col" style="flex: 1.2">
             {#if can(role, "zarzadza_koszem")}
               <Expander title={`🔥 Trwałe usunięcie (${r.nazwa})`}>
                 <Alert kind="error" html={`⚠️ Trwałe usunięcie regionu skasuje również ${r.powiazane_kola} powiązanych kół i ich całą historię finansową!`} />
                 <label class="checkbox"><input type="checkbox" bind:checked={permR[r.id]} /> <span>Trwale usuń region {r.nazwa}</span></label>
-                <button class="btn" type="button" onclick={() => { if (!permR[r.id]) return void (errTrash = "Musisz zaznaczyć checkbox potwierdzający."); run(() => del(`/regiony/${r.id}`), `Region '${r.nazwa}' został trwale usunięty z bazy.`, (m) => (errTrash = m)); }}>🔥 Usuń trwale z bazy #{r.id}</button>
+                <button class="btn" type="button" onclick={() => { if (!permR[r.id]) return void trashErr(`r${r.id}-perm`)("Musisz zaznaczyć checkbox potwierdzający."); run(() => del(`/regiony/${r.id}`), `Region '${r.nazwa}' został trwale usunięty z bazy.`, trashErr(`r${r.id}-perm`)); }}>🔥 Usuń trwale z bazy #{r.id}</button>
+                {#if errTrash.key === `r${r.id}-perm` && errTrash.msg}<Alert kind="error" html={errTrash.msg} />{/if}
               </Expander>
             {/if}
           </div>

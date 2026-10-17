@@ -40,7 +40,17 @@ async function dump(url: string) {
   return res;
 }
 
-const [a, b] = await Promise.all([dump(urlA), dump(urlB)]);
+/** Retries when the OS has no free ephemeral port (EADDRINUSE on connect) — seen on busy Windows machines. */
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try { return await fn(); } catch (e) {
+      if (attempt >= 8 || !String((e as { code?: string }).code ?? e).includes("EADDRINUSE")) throw e;
+      await new Promise((r) => setTimeout(r, 5000 * attempt));
+    }
+  }
+}
+const a = await withRetry(() => dump(urlA));
+const b = await withRetry(() => dump(urlB));
 let diffs = 0;
 for (const t of TABLES) {
   const n = Math.max(a[t].length, b[t].length);

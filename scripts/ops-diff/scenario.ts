@@ -137,6 +137,15 @@ async function record(tag: string) {
   const wanted = texts.map((t) => t.replace(/\s+/g, " ").trim()).filter((t) => /⚠️|❌|już istnieje|wymagan|Zaznacz|Musisz|Min\.|Potwierdź|nie może|Identyczna|Nie można|co najmniej|Wprowadź|Wypełnij|identyczne|musi mieć|Nieprawidłowy|zablokowane/.test(t));
   (messages[`${currentStep}: ${tag}`] ??= []).push(...wanted);
 }
+/** page.goto with retries: on a busy Windows machine new sockets can fail transiently (ephemeral port exhaustion). */
+async function open(url: string) {
+  for (let attempt = 1; ; attempt++) {
+    try { await page.goto(url, { timeout: 45_000 }); return; } catch (e) {
+      if (attempt >= 4) throw e;
+      await page.waitForTimeout(5000 * attempt);
+    }
+  }
+}
 /** Records the calculator's result cards and summary alerts (read-only computation in both apps). */
 async function snapshot(tag: string) {
   await page.waitForTimeout(isRef ? 300 : 300);
@@ -164,7 +173,7 @@ async function plots(tag: string) {
 }
 async function login(user: { login: string; password: string }) {
   tabPath = [];
-  await page.goto(base);
+  await open(base);
   await settle();
   await page.getByLabel("Login").fill(user.login);
   await page.locator('input[type="password"]').fill(user.password);
@@ -485,7 +494,7 @@ const steps: Record<string, () => Promise<void>> = {
   },
   async logowanie() {
     const attempt = async (login: string, password: string, tag: string) => {
-      await page.goto(base);
+      await open(base);
       await settle();
       await page.getByLabel("Login").fill(login);
       await page.locator('input[type="password"]').fill(password);
@@ -563,7 +572,16 @@ for (const name of names) {
   currentStep = name;
   const t0 = Date.now();
   try {
-    await steps[name]();
+    // hard limit per step: a stalled socket must fail the step, not hang the whole run
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        steps[name](),
+        new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(`step "${name}" exceeded 5 minutes`)), 5 * 60_000); }),
+      ]);
+    } finally {
+      clearTimeout(timer);
+    }
     console.log(`✓ ${name} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
   } catch (e) {
     const shot = `${outFile.replace(/\.json$/, "")}-${name}-fail.png`;
@@ -581,3 +599,4 @@ for (const name of names) {
 }
 writeFileSync(outFile, JSON.stringify(messages, null, 2));
 await browser.close();
+process.exit(process.exitCode ?? 0);

@@ -47,7 +47,36 @@ przegląd wizualny: arkusze porównawcze `scripts/contact-sheets.ts` (oryginał 
 ## Działanie
 
 * Silniki obliczeń: test różnicowy 400 losowych członków z oryginalnym kodem Python — wyniki identyczne (`tests/parity`).
-* Testy API: 12, testy jednostkowe: 26, E2E Playwright: 21 (wszystkie zakładki, role, motywy, operacje zapisu, wygaszanie sesji).
+* Testy API: 12, testy jednostkowe: 32, E2E Playwright: 21 (wszystkie zakładki, role, motywy, operacje zapisu, wygaszanie sesji).
+
+## Zgodność funkcjonalna — test różnicowy na danych rzeczywistych (`npm run ops:diff`)
+
+Ten sam scenariusz wykonany przez interfejs **obu** aplikacji, każda na własnej identycznej kopii zrzutu produkcyjnego.
+Po scenariuszu porównywana jest cała zawartość obu baz (13 tabel łącznie z dziennikiem audytu, z identyfikatorami
+rekordów; znaczniki czasu tylko „ustawiony / pusty”, losowe klucze idempotencji i skróty haseł zamaskowane) oraz komunikaty,
+wyniki kalkulatora i dane wykresów pokazane przez oba programy.
+
+| Obszar | Co jest wykonywane | Wynik |
+| :--- | :--- | :--- |
+| Wpłaty | księgowanie, blokada duplikatu 60 s i jej obejście, zgłoszenie testowe do kolejki, edycja (osoba/kwota/data/notatka), usunięcie | identyczne |
+| Ręczne naliczenia | dodanie dwóch, usunięcie jednego | identyczne |
+| Korekty salda | korekta z datą wsteczną (delta liczona od salda na tę datę) i bieżąca, kwota ujemna z groszami | identyczne |
+| Kasa | wydatek, korekta kasy na datę wyciągu sprzed 4 miesięcy | identyczne |
+| Członkowie | walidacja wieku i pustego nazwiska, dodanie, edycja parametrów krytycznych bez i z potwierdzeniem, usunięcie członka z wpłatami | identyczne |
+| Celestia | brak nazwy, termin głosowania (waga 1.5, okno 10 dni, poślizg 3), zbiórka kwartalna, usunięcie | identyczne |
+| Kolejka wpłat | deklaracja skarbnika koła, akceptacja, odrzucenie z własnym powodem | identyczne |
+| Struktura | duplikat regionu, region, zmiana nazwy, koła, edycja, kosz koła, kosz regionu z kołem, blokada przywrócenia koła, przywracanie, ponowny kosz, trwałe usunięcie | identyczne |
+| Konta | duplikat loginu, konto koła i regionu, blokada, zmiana roli, za krótkie hasło, reset hasła, usunięcie, wymuszona zmiana hasła (różne / za krótkie / poprawne) | identyczne |
+| Logowanie | złe hasło, nieznany login, konto zablokowane (złe i dobre hasło) | identyczne komunikaty |
+| Kalkulator | 5 zestawów danych (tryb wieku i ręczny, funkcje, data startu, bieżący miesiąc, saldo ujemne) | karty, rozbicie naliczeń i werdykt identyczne |
+| Wykresy | oś salda i dynamika KDI dla 3 członków × 3 interwały, rozkład Celestii, porównania KDI regionu i kraju | dane wszystkich serii identyczne |
+| Kopia zapasowa | pobranie przez UI, odtworzenie do pustej bazy | obie odtwarzają się do kopii bazy; nowa wersja co do mikrosekundy |
+
+Wszystkie komunikaty walidacji mają identyczną treść. Sukcesy oryginał gubi przy `st.rerun()`; nowa wersja pokazuje je
+jako powiadomienia — to i inne świadome usprawnienia są w `docs/IMPROVEMENTS.md`.
+
+Znalezione i poprawione dzięki testowi: kopia zapasowa nowej wersji obcinała znaczniki czasu do milisekund (teraz bezstratna);
+błędy w koszu pokazywały się nad listą zamiast pod klikniętym przyciskiem.
 
 ## Dane rzeczywiste (zrzut produkcyjny z 2026-10-17)
 

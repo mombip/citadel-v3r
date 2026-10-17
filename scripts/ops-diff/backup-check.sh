@@ -4,8 +4,8 @@
 # Usage: bash scripts/ops-diff/backup-check.sh [outDir]
 set -uo pipefail
 OUT="${1:-tests/e2e/results/ops-diff}"; mkdir -p "$OUT"
-REF="${OPS_REF_URL:-http://localhost:8602}"; NEW="${OPS_NEW_URL:-http://localhost:8702}"
-PG="${OPS_PG:-postgresql://citadel:citadel@localhost:55432}"; CONTAINER="${OPS_CONTAINER:-citadel-ref-pg}"
+REF="${OPS_REF_URL:-http://127.0.0.1:8602}"; NEW="${OPS_NEW_URL:-http://127.0.0.1:8702}"
+PG="${OPS_PG:-postgresql://citadel:citadel@127.0.0.1:55432}"; CONTAINER="${OPS_CONTAINER:-citadel-ref-pg}"
 psql_() { docker exec -i "$CONTAINER" psql -q -v ON_ERROR_STOP=1 -U citadel "$@"; }
 RC=0
 for K in ref new; do
@@ -18,5 +18,12 @@ for K in ref new; do
   fi
   echo "--- $K: restored backup vs. live database"
   npx tsx scripts/ops-diff/diff-db.ts "$PG/citadel_ops_$K" "$PG/citadel_bk_$K" | tail -3 || RC=1
+  # exact (unnormalised) comparison: every column incl. timestamps to the microsecond and JSON text
+  BAD=""
+  for T in kraje regiony kola uzytkownicy czlonkowie wplaty wplaty_oczekujace naliczenia_reczne korekty wydatki korekty_kasy terminy_glosowan audit_log; do
+    Q="select md5(coalesce(string_agg(t::text, '|' order by id), '')) from $T t"
+    [ "$(psql_ -d "citadel_ops_$K" -tAc "$Q")" = "$(psql_ -d "citadel_bk_$K" -tAc "$Q")" ] || BAD="$BAD $T"
+  done
+  if [ -n "$BAD" ]; then echo "  exact comparison: differs in$BAD"; [ "$K" = new ] && RC=1; else echo "  exact comparison: identical"; fi
 done
 exit $RC

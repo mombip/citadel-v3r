@@ -29,14 +29,18 @@ export async function generateSqlDump(db: Queryable): Promise<{ filename: string
   out.push(`TRUNCATE TABLE ${[...AUDITED_TABLES].reverse().map((t) => `"${t}"`).join(", ")} CASCADE;\n`);
 
   for (const tab of AUDITED_TABLES) {
-    const cols = await db.query<{ column_name: string; identity_generation: string | null }>(
-      "SELECT column_name, identity_generation FROM information_schema.columns WHERE table_name = $1 ORDER BY ordinal_position",
+    const cols = await db.query<{ column_name: string; identity_generation: string | null; data_type: string }>(
+      "SELECT column_name, identity_generation, data_type FROM information_schema.columns WHERE table_name = $1 ORDER BY ordinal_position",
       [tab],
     );
     if (!cols.length) continue;
     const names = cols.map((c) => `"${c.column_name}"`).join(", ");
     const overriding = cols.some((c) => c.identity_generation === "ALWAYS") ? " OVERRIDING SYSTEM VALUE" : "";
-    const rows = await db.query<Record<string, unknown>>(`SELECT ${names} FROM "${tab}" ORDER BY id ASC`);
+    // Timestamps, JSON and decimals are read as PostgreSQL's own text so the dump is lossless (microseconds, 1.50 stays 1.50);
+    // going through JS Date/number would truncate to milliseconds and drop trailing zeros.
+    const exact = (c: { column_name: string; data_type: string }) =>
+      /timestamp|json|numeric|time|interval/.test(c.data_type) ? `"${c.column_name}"::text AS "${c.column_name}"` : `"${c.column_name}"`;
+    const rows = await db.query<Record<string, unknown>>(`SELECT ${cols.map(exact).join(", ")} FROM "${tab}" ORDER BY id ASC`);
     out.push(`\n-- Tabela: ${tab} (${rows.length} rekordów)`);
     for (const r of rows) {
       out.push(`INSERT INTO "${tab}" (${names})${overriding} VALUES (${cols.map((c) => sqlValue(r[c.column_name])).join(", ")});`);

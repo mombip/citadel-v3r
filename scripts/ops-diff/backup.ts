@@ -14,7 +14,9 @@ const settle = async () => {
   await page.waitForTimeout(isRef ? 400 : 100);
 };
 const vis = (l: ReturnType<typeof page.locator>) => l.and(page.locator(":visible")).first();
-await page.goto(base);
+for (let attempt = 1; ; attempt++) {
+  try { await page.goto(base, { timeout: 45_000 }); break; } catch (e) { if (attempt >= 4) throw e; await page.waitForTimeout(5000 * attempt); }
+}
 await settle();
 await page.getByLabel("Login").fill(process.env.OPS_ADMIN_LOGIN || "parity_admin");
 await page.locator('input[type="password"]').fill(process.env.OPS_ADMIN_PASSWORD || "Parity1234!");
@@ -29,7 +31,8 @@ await vis(page.getByRole("button", { name: "🚀 Wygeneruj zrzut bazy (.sql)" })
 await settle();
 const [download] = await Promise.all([
   page.waitForEvent("download"),
-  vis(page.getByRole("button", { name: "📥 Pobierz plik bazy (.sql)" })).click(),
+  // a button in the original, a download link in the new app
+  vis(page.getByText("📥 Pobierz plik bazy (.sql)", { exact: true })).click(),
 ]);
 await download.saveAs(out);
 console.log(`${kind}: ${download.suggestedFilename()} -> ${out}`);
