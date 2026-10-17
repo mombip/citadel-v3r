@@ -13,7 +13,10 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "seed:reference": "tsx scripts/seed-reference.ts",
-    "parity:gen": "python tests/parity/gen_python_cases.py ../Citadel-V3/citadel tests/parity/python-cases.json"
+    "parity:gen": "python tests/parity/gen_python_cases.py ../Citadel-V3/citadel tests/parity/python-cases.json",
+    "db:pull-prod": "bash scripts/db-pull-prod.sh",
+    "db:restore": "bash scripts/db-pull-prod.sh --restore-only",
+    "start:local-db": "cross-env DATABASE_URL=postgresql://citadel:citadel@localhost:5433/citadel_local tsx server/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -32,6 +35,7 @@
     "@types/node": "^26.6.5",
     "@types/plotly.js": "^3.0.15",
     "concurrently": "^10.0.6",
+    "cross-env": "^10.1.0",
     "plotly.js-basic-dist-min": "^4.1.2",
     "svelte": "^5.57.2",
     "svelte-check": "^4.7.7",

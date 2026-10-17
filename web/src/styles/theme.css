@@ -275,7 +275,9 @@ code { background: var(--pill-bg); border: 1px solid var(--pill-border); border-
 .accent-green { color: var(--accent-green); }
 .accent-rose { color: var(--accent-rose); }
 .login-header-card { text-align: center; border: 1px solid var(--login-border); box-shadow: var(--login-shadow); }
-.login-header-card h2 { font-weight: 800; margin-bottom: 4px; padding: 0; font-size: 1.75rem; }
+.login-header-card h2 { font-weight: 800; margin: 0 0 4px; padding: 1rem 0 0.5rem; font-size: 2.25rem; }
+.login-col > .btn { padding-top: 6px; padding-bottom: 6px; }
+.login-col .form-card { padding-bottom: 0.75rem; }
 
 .user-pill {
   display: inline-flex; align-items: center; background: var(--pill-bg); border: 1px solid var(--pill-border);
@@ -396,7 +398,12 @@ details.expander > .content { padding: 0 1rem 1rem; }
 .toast-stack .alert { margin: 0; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); }
 .plot { width: 100%; min-height: 260px; }
 .inline-h { display: inline-flex; align-items: center; gap: 0.5rem; }
-.login-wrap { display: flex; justify-content: center; padding-top: 2.5rem; }
+.login-wrap { display: flex; justify-content: center; padding-top: var(--login-top, 4.1rem); }
 .login-col { width: 100%; max-width: 530px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .vote-yes { color: #22c55e; font-weight: 800; }
 .vote-no { color: #f43f5e; font-weight: 800; }
+
+/* The original's light theme inverts the data-grid canvas, which renders table bodies grey. */
+:root[data-theme="light_mono"] table.df th { background: #dadadd; }
+:root[data-theme="light_mono"] table.df td { background: #dedee0; }

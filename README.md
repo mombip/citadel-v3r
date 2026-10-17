@@ -42,6 +42,17 @@ cp .env.example .env   # i uzupełnij DATABASE_URL / SESSION_SECRET
 
 Pierwsze uruchomienie tworzy konto `admin` / `Centauri2026!` z wymuszoną zmianą hasła (jak w oryginale).
 
+### Kopia bazy produkcyjnej (Neon) w lokalnym Dockerze
+
+```bash
+npm run db:pull-prod          # pg_dump z DATABASE_URL w .env → backups/neon_*.dump → kontener citadel-local-pg (port 5433)
+npm run db:restore -- backups/neon_XXXX.dump   # ponowne wczytanie istniejącego zrzutu
+npm run start:local-db        # aplikacja na lokalnej kopii (postgresql://citadel:citadel@localhost:5433/citadel_local)
+```
+
+Zrzut wykonywany jest wyłącznie odczytem (`pg_dump`) przez bezpośredni endpoint Neon (bez `-pooler`).
+Katalog `backups/` jest w `.gitignore` — zrzuty zawierają dane produkcyjne.
+
 ### Tryb deweloperski (hot reload)
 
 ```bash

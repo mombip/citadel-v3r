@@ -10,3 +10,6 @@ scratch/
 
 # Regenerated walkthrough screenshots of the new app (reference captures of the original stay versioned)
 tests/e2e/screenshots/new/
+
+# Local database dumps (may contain production data)
+backups/

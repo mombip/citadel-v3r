@@ -163,7 +163,7 @@
     <Plot figure={celestiaDistributionFigure(counts, isLight)} />
 
     <h4>📋 Szczegółowy Ranking Wiarygodności Członków</h4>
-    <Radio options={filtry} bind:value={filtr} name="filtr-rating" />
+    <Radio label="Filtruj wg klasy ratingu:" collapsed options={filtry} bind:value={filtr} name="filtr-rating" />
     <DataTable testid="ranking-table" columns={[
       { key: "pozycja", label: "Pozycja", numeric: true }, { key: "czlonek", label: "Członek" },
       { key: "rating", label: "Rating Celestia", style: (v: string) => `color: ${celestiaColor(v, isLight)}; font-weight: 800; font-size: 1.05rem;` },
@@ -225,7 +225,7 @@
 
     <h5>🗑️ Usuwanie terminu wymagalności</h5>
     <div class="cols">
-      <div class="col" style="flex: 3"><Select options={usunOptions} bind:value={usunId} name="usun-termin" /></div>
+      <div class="col" style="flex: 3"><Select label="Wybierz termin do usunięcia:" collapsed options={usunOptions} bind:value={usunId} name="usun-termin" /></div>
       <div class="col" style="flex: 1"><button class="btn secondary full" type="button" onclick={usunTermin} data-testid="btn-usun-termin">Usuń wybrany termin</button></div>
     </div>
   {/if}

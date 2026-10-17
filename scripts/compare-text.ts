@@ -150,4 +150,18 @@ for (const [name, keys] of Object.entries(sessions)) {
   const onlyRef = [...a].filter((t) => !b.has(t) && !t.startsWith("{"));
   console.log(`\n### ${name} session: ${[...a].filter((t) => b.has(t)).length} texts in both apps, ${onlyRef.length} only in the original`);
   if (onlyRef.length) console.log("  " + onlyRef.map((t) => JSON.stringify(t)).join(" | "));
+  // Word level: immune to how each app splits a sentence into DOM nodes (emoji spans, Markdown fragments).
+  const STREAMLIT_CHROME = /^(Skip|to|main|content|keyboard_arrow_right|keyboard_arrow_down|visibility|\\rightarrow)$/;
+  const words = (set: Set<string>) =>
+    new Set(
+      [...set]
+        .filter((t) => !t.startsWith("{"))
+        .flatMap((t) => t.split(/\s+/))
+        .map((w) => w.replace(/^[^\p{L}\p{N}'(≤<+-]+|[^\p{L}\p{N}')%]+$/gu, ""))
+        .filter((w) => w && !STREAMLIT_CHROME.test(w) && !/^\d{1,4}$/.test(w) && !/^\d{4}-\d{2}-\d{2} \d/.test(w)),
+    );
+  const wa = words(a);
+  const wb = words(b);
+  const wordsOnlyRef = [...wa].filter((w) => !wb.has(w));
+  console.log(`    words: ${wa.size} distinct in the original, ${wordsOnlyRef.length} missing from the new app${wordsOnlyRef.length ? ": " + wordsOnlyRef.join(" ") : ""}`);
 }
