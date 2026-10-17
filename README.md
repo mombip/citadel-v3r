@@ -153,6 +153,8 @@ npx tsx scripts/compare-pixels.ts
 
 * `web/public/logo.svg` — znak główny (inicjał „C” ze złotą monetą), favicona i ikona aplikacji.
 * `web/public/citadel-wordmark.svg` — pełne logo: znak słowny „Citadel for NG” (Noto Serif Italic zamieniony na krzywe, 1024×1024).
+* `web/public/brand/` — sześć propozycji znaku słownego, jednowierszowy znak z żółtą kropką nad „i” (używany w aplikacji)
+  i strona z koncepcjami (`/brand/`). Wszystko generuje `node scripts/brand/gen-wordmarks.mjs`.
 
 ## 📁 Struktura
 

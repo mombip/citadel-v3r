@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { expectToast, login, openTab, selectMatching, selectRegion, selectUnit, USERS } from "./helpers";
+import { expectToast, login, openTab, choose, optionsOf, selectRegion, selectUnit, USERS } from "./helpers";
 
 test.describe.serial("operacje skarbnika", () => {
   test("rejestracja terminu głosowania z podglądem okna zbiórki i usuwanie", async ({ page }) => {
@@ -37,7 +37,7 @@ test.describe.serial("operacje skarbnika", () => {
     await selectRegion(page, "Mazowsze");
     await selectUnit(page, "Koło Radom");
     await openTab(page, /Wpłaty Członków/);
-    await selectMatching(page, "select[name=w-czlonek]", /Hanna Dąbrowska/);
+    await choose(page, "w-czlonek", /Hanna Dąbrowska/);
     await page.locator("input[name=w-kwota]").fill("12.5");
     await page.locator("#w-notatka").fill("Test e2e");
     await page.getByRole("button", { name: "Zaksięguj wpłatę bezpośrednio" }).click();
@@ -46,13 +46,13 @@ test.describe.serial("operacje skarbnika", () => {
     await page.getByRole("button", { name: "Zaksięguj wpłatę bezpośrednio" }).click();
     await expect(page.getByRole("alert")).toContainText("Identyczna wpłata w ciągu ostatnich 60s");
     await page.getByRole("radio", { name: /Popraw \/ Usuń wpłatę/ }).check();
-    await selectMatching(page, "select[name=w-edit]", /Test e2e/);
+    await choose(page, "w-edit", /Test e2e/);
     await page.locator("input[name=e-kwota]").fill("20");
     await page.getByRole("button", { name: "Zastosuj operację" }).click();
     await expectToast(page, "Wpłata zaktualizowana.");
     await expect(page.getByTestId("kolo-cards").getByTestId("bento-card").nth(1)).toContainText("116.00 PLN");
     await page.getByRole("radio", { name: /Popraw \/ Usuń wpłatę/ }).check();
-    await selectMatching(page, "select[name=w-edit]", /Test e2e/);
+    await choose(page, "w-edit", /Test e2e/);
     await page.locator("input[name=e-del]").check();
     await page.getByRole("button", { name: "Zastosuj operację" }).click();
     await expectToast(page, "Wpłata usunięta.");
@@ -62,7 +62,7 @@ test.describe.serial("operacje skarbnika", () => {
   test("deklaracja wpłaty przez skarbnika koła i akceptacja przez admina", async ({ page }) => {
     await login(page, USERS.unit);
     await openTab(page, /Wpłaty Członków/);
-    await selectMatching(page, "select[name=d-czlonek]", /Dawid Zieliński/);
+    await choose(page, "d-czlonek", /Dawid Zieliński/);
     await page.locator("input[name=d-kwota]").fill("18");
     await page.locator("#d-not").fill("Deklaracja e2e");
     await page.getByRole("radio", { name: /Nie dysponuję potwierdzeniem/ }).check();
@@ -92,7 +92,7 @@ test.describe.serial("operacje skarbnika", () => {
     await selectRegion(page, "Mazowsze");
     await selectUnit(page, "Koło Radom");
     await openTab(page, /Ręczne Naliczenia/);
-    await selectMatching(page, "select[name=n-czlonek]", /Grzegorz Lis/);
+    await choose(page, "n-czlonek", /Grzegorz Lis/);
     await page.locator("input[name=n-kwota]").fill("30");
     await page.locator("#n-tytul").fill("Składka zjazdowa");
     await page.getByRole("button", { name: "Zaksięguj naliczenie" }).click();
@@ -103,14 +103,14 @@ test.describe.serial("operacje skarbnika", () => {
     await expect(page.getByTestId("zbiorcza-table").locator("tbody tr").first()).toContainText("60.00 zł");
 
     await openTab(page, /Korekta Salda Osoby/);
-    await selectMatching(page, "select[name=k-czlonek]", /Grzegorz Lis/);
+    await choose(page, "k-czlonek", /Grzegorz Lis/);
     await page.locator("input[name=k-saldo]").fill("90");
     await page.getByRole("button", { name: "Zastosuj korektę członka" }).click();
     await expectToast(page, "Zaktualizowano saldo o deltę: +30.00 zł.");
 
     await openTab(page, /Kasa Koła & Wydatki/);
     await page.locator("input[name=wyd-kwota]").fill("16");
-    await page.locator("select[name=wyd-kat]").selectOption("Sprzęt");
+    await choose(page, "wyd-kat", "Sprzęt");
     await page.locator("#wyd-opis").fill("FV 1/2026");
     await page.getByRole("button", { name: "Zaksięguj wydatek" }).click();
     await expectToast(page, "Wydatek zaksięgowany.");
@@ -135,7 +135,7 @@ test.describe.serial("operacje skarbnika", () => {
     await expect(page.getByRole("alert")).toContainText("co najmniej 13 lat");
     await page.locator("#a-ur").fill("1998-05-05");
     await page.locator("input[name=a-start]").fill("12");
-    await page.locator("select[name=a-param]").selectOption("S");
+    await choose(page, "a-param", "S");
     await page.getByRole("button", { name: "Zapisz profil" }).click();
     await expectToast(page, "Dodano członka: Zofia Testowa");
     await openTab(page, /Tabela Zbiorcza/);
@@ -145,7 +145,7 @@ test.describe.serial("operacje skarbnika", () => {
 
     await openTab(page, /Zarządzaj Członkami/);
     await page.getByRole("radio", { name: /Edytuj profil członka/ }).check();
-    await selectMatching(page, "select[name=e-czlonek]", /Zofia Testowa/);
+    await choose(page, "e-czlonek", /Zofia Testowa/);
     await page.locator("input[name=e-start]").fill("50");
     await expect(page.getByText("Zmiana parametrów krytycznych przeliczy wstecznie KDI i naliczenia!")).toBeVisible();
     await page.getByRole("button", { name: "Zapisz zmiany w profilu" }).click();
@@ -155,11 +155,11 @@ test.describe.serial("operacje skarbnika", () => {
     await expectToast(page, "Zaktualizowano dane członka.");
 
     await page.getByRole("radio", { name: /Usuń członka z koła/ }).check();
-    await selectMatching(page, "select[name=d-czlonek]", /Zofia Testowa/);
+    await choose(page, "d-czlonek", /Zofia Testowa/);
     await page.locator("input[name=d-confirm]").check();
     await page.getByRole("button", { name: "🔥 Usuń trwale profil" }).click();
     await expectToast(page, "Profil usunięty.");
-    await expect(page.locator("select[name=d-czlonek]")).not.toContainText("Zofia Testowa");
+    expect((await optionsOf(page, "d-czlonek")).some((t) => t.includes("Zofia Testowa"))).toBe(false);
   });
 
   test("kalkulator liczy reaktywnie po stronie przeglądarki", async ({ page }) => {
@@ -175,9 +175,9 @@ test.describe.serial("operacje skarbnika", () => {
     await expect(result.getByTestId("bento-card").nth(2)).toContainText("TAK (UPRAWNIONY)");
     await expect(page.getByText("Konto w pełni uregulowane.")).toBeVisible();
     await page.getByRole("radio", { name: /Ręczny wybór progu/ }).check();
-    await selectMatching(page, "select[name=calc-stawka]", /S \(15.00/);
+    await choose(page, "calc-stawka", /S \(15.00/);
     await expect(result.getByTestId("bento-card").nth(3)).toContainText("Próg bieżący: S");
-    await selectMatching(page, "select[name=calc-funkcja]", /Zarządu Krajowego/);
+    await choose(page, "calc-funkcja", /Zarządu Krajowego/);
     await page.locator("input[name=calc-fn-msc]").fill("3");
     await expect(result.getByTestId("bento-card").nth(3)).toContainText("(+60.00 zł funkcyjne)");
   });
@@ -193,20 +193,20 @@ test.describe.serial("administracja", () => {
     await page.locator("#reg-nowy").fill("Pomorze");
     await page.getByRole("button", { name: "➕ Utwórz Region" }).click();
     await expectToast(page, "Region 'Pomorze' został utworzony.");
-    await expect(page.locator("select[name=region] option")).toContainText(["Pomorze"]);
+    expect(await optionsOf(page, "region")).toContain("Pomorze");
 
     await page.getByTestId("struktura-tabs").getByRole("tab", { name: /Koła/ }).click();
     await page.locator("#kolo-nowe").fill("Koło Gdańsk");
-    await page.locator("select[name=kolo-nowe-reg]").selectOption({ label: "Pomorze" });
+    await choose(page, "kolo-nowe-reg", "Pomorze");
     await page.getByRole("button", { name: "➕ Utwórz Koło" }).click();
     await expectToast(page, "Koło 'Koło Gdańsk' zostało utworzone.");
-    await selectMatching(page, "select[name=kolo-ed]", /Koło Gdańsk/);
+    await choose(page, "kolo-ed", /Koło Gdańsk/);
     await page.locator("#kolo-ed-nazwa").fill("Koło Gdynia");
     await page.getByRole("button", { name: "💾 Zapisz zmiany w kole" }).click();
     await expectToast(page, "Zaktualizowano koło 'Koło Gdynia'.");
 
     await page.getByTestId("struktura-tabs").getByRole("tab", { name: /Regiony/ }).click();
-    await page.locator("select[name=reg-del]").selectOption({ label: "Pomorze" });
+    await choose(page, "reg-del", "Pomorze");
     await expect(page.getByText("Region 'Pomorze' posiada 1 aktywnych kół")).toBeVisible();
     await page.getByTestId("btn-region-kosz").click();
     await expect(page.getByRole("alert").last()).toContainText("Zaznacz checkbox");
@@ -237,8 +237,8 @@ test.describe.serial("administracja", () => {
     await page.getByTestId("centauri-tabs").getByRole("tab", { name: /Nowe Konto/ }).click();
     await page.locator("#n-login").fill("skarbnik_radom");
     await page.locator("#n-imie").fill("Radosław Radomski");
-    await page.locator("select[name=n-rola]").selectOption("SKARBNIK_KOLA");
-    await page.locator("select[name=n-kolo]").selectOption({ label: "Koło Radom" });
+    await choose(page, "n-rola", "SKARBNIK_KOLA");
+    await choose(page, "n-kolo", "Koło Radom");
     await page.getByTestId("btn-utworz-konto").click();
     await expectToast(page, "Utworzono konto: skarbnik_radom!");
     await page.getByTestId("centauri-tabs").getByRole("tab", { name: /Rejestr Użytkowników/ }).click();
@@ -259,15 +259,15 @@ test.describe.serial("administracja", () => {
     await expect(other.getByTestId("header")).toContainText("Radosław Radomski");
 
     // Admin blocks the account → the other session expires on its next request
-    await selectMatching(page, "select[name=u-blok]", /skarbnik_radom/);
+    await choose(page, "u-blok", /skarbnik_radom/);
     await page.getByRole("button", { name: "🔴 Zablokuj dostęp" }).click();
     await expectToast(page, "Zaktualizowano status konta: skarbnik_radom.");
     await other.getByRole("tab", { name: /Profile & Wykresy/ }).click();
     await expect(other.getByText("Twoja sesja wygasła lub konto zostało zablokowane")).toBeVisible({ timeout: 30_000 });
     await ctx.close();
 
-    await selectMatching(page, "select[name=u-rola]", /skarbnik_radom/);
-    await page.locator("select[name=u-nowa-rola]").selectOption("SKARBNIK_REGIONU");
+    await choose(page, "u-rola", /skarbnik_radom/);
+    await choose(page, "u-nowa-rola", "SKARBNIK_REGIONU");
     await page.getByRole("button", { name: "Zastosuj nową rolę" }).click();
     await expectToast(page, "Uprawnienia zostały zaktualizowane.");
     await expect(row).toContainText("📊 Region");
@@ -277,7 +277,7 @@ test.describe.serial("administracja", () => {
     await login(page, USERS.admin);
     await openTab(page, /Logi Audytowe/);
     await expect(page.getByTestId("audit-table").locator("tbody tr").first()).toBeVisible();
-    await page.locator("select[name=audit-tabela]").selectOption("uzytkownicy");
+    await choose(page, "audit-tabela", "uzytkownicy");
     await expect(page.getByTestId("audit-table").locator("tbody tr").first()).toContainText("uzytkownicy");
     await page.getByTestId("audyt-tabs").getByRole("tab", { name: /Rejestr Wpłat/ }).click();
     await expect(page.getByTestId("rejestr-wplat").locator("tbody tr").first()).toBeVisible();

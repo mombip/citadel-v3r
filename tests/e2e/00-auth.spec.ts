@@ -4,7 +4,7 @@ import { login, USERS } from "./helpers";
 test.describe("logowanie i sesja", () => {
   test("ekran logowania wygląda jak w oryginale i odrzuca złe hasło", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator(".login-header-card h2")).toHaveText("CITADEL FOR NG");
+    await expect(page.locator(".login-header-card").getByRole("img", { name: "Citadel for NG" })).toBeVisible();
     await expect(page.getByText("System Ewidencji Składek i Finansów")).toBeVisible();
     await expect(page.getByRole("button", { name: /Motyw: 💜 Fiolet/ })).toBeVisible();
     await page.getByLabel("Login").fill("admin2");

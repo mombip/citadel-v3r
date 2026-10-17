@@ -3,6 +3,7 @@
   import { can, roleLabel } from "../../../shared/rbac";
   import Select from "../components/Select.svelte";
   import Alert from "../components/Alert.svelte";
+  import Wordmark from "../components/Wordmark.svelte";
 
   const user = $derived(app.user!);
   const dict = $derived(app.dict!);
@@ -27,7 +28,7 @@
 
 <div class="cols header" data-testid="header">
   <div class="col" style="flex: 1.7">
-    <h1 style="font-size: 1.6rem; font-weight: 700; margin: 0; padding-top: 1.2rem;">Citadel for NG</h1>
+    <h1 class="app-title"><img src="/logo.svg" alt="" width="40" height="40" /><Wordmark height={30} /></h1>
   </div>
   <div class="col" style="flex: 0.8">
     {#if seesCountry}

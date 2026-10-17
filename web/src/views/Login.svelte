@@ -2,6 +2,7 @@
   import { app, THEME_LABELS } from "../lib/state.svelte";
   import { post } from "../lib/api";
   import Alert from "../components/Alert.svelte";
+  import Wordmark from "../components/Wordmark.svelte";
 
   let login = $state("");
   let password = $state("");
@@ -29,7 +30,8 @@
   <div class="login-col">
     {#if app.sessionNotice}<Alert kind="warning" html={app.sessionNotice} />{/if}
     <div class="bento-card login-header-card">
-      <h2>CITADEL FOR NG</h2>
+      <img class="login-logo" src="/logo.svg" alt="" width="72" height="72" />
+      <h2 class="login-wordmark"><Wordmark height={44} /></h2>
       <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 24px;">System Ewidencji Składek i Finansów</div>
     </div>
     <form class="form-card" onsubmit={submit} data-testid="form-login">

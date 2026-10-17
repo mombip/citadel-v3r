@@ -1,12 +1,12 @@
 import { test, expect } from "@playwright/test";
-import { login, openTab, selectMatching, selectRegion, selectUnit, USERS } from "./helpers";
+import { login, openTab, choose, optionsOf, selectRegion, selectUnit, USERS } from "./helpers";
 
 test.describe("widoki: koło / region / kraj", () => {
   test("admin widzi pełny nagłówek, kolejkę i wszystkie zakładki koła", async ({ page }) => {
     await login(page, USERS.admin);
     await expect(page.getByTestId("user-pill")).toHaveText("👑 Admin");
     await expect(page.getByText("Kolejka Weryfikacji:")).toBeVisible();
-    await expect(page.locator("select[name=kraj]")).toHaveValue("1");
+    await expect(page.locator("input[name=kraj]")).toHaveValue("Polska");
     const tabs = page.getByTestId("kolo-tabs").getByRole("tab");
     await expect(tabs).toHaveText([
       "📊 Tabela Zbiorcza", "📈 Profile & Wykresy", "⭐ Celestia & Głosowania", "💰 Wpłaty Członków", "📝 Ręczne Naliczenia",
@@ -42,7 +42,7 @@ test.describe("widoki: koło / region / kraj", () => {
     await selectRegion(page, "Mazowsze");
     await selectUnit(page, "Koło Warszawa");
     await openTab(page, /Profile & Wykresy/);
-    await selectMatching(page, "select[name=profil-czlonek]", /Alicja Nowak/);
+    await choose(page, "profil-czlonek", /Alicja Nowak/, { type: "alnow" });
     await expect(page.getByTestId("profile-banner")).toContainText("AAA");
     await expect(page.getByTestId("plot").locator(".main-svg").first()).toBeVisible();
     await page.getByRole("radio", { name: "M1" }).check();
@@ -74,14 +74,14 @@ test.describe("widoki: koło / region / kraj", () => {
     await expect(page.getByTestId("kraj-table")).toContainText("Bez regionu (nieprzypisane)");
     await selectRegion(page, "⚠️ Bez regionu (1)");
     await page.getByRole("radio", { name: "🏢 Koło" }).check();
-    await expect(page.locator("select[name=kolo] option")).toHaveText(["Koło Bez Regionu"]);
+    expect(await optionsOf(page, "kolo")).toEqual(["Koło Bez Regionu"]);
   });
 
   test("skarbnik koła widzi tylko swoje koło i ograniczone zakładki", async ({ page }) => {
     await login(page, USERS.unit);
     await expect(page.getByText("🔒 Dostęp do własnego Koła")).toBeVisible();
-    await expect(page.locator("select[name=kolo]")).toBeDisabled();
-    await expect(page.locator("select[name=kolo]")).toContainText("Koło Warszawa");
+    await expect(page.locator("input[name=kolo]")).toBeDisabled();
+    await expect(page.locator("input[name=kolo]")).toHaveValue("Koło Warszawa");
     await expect(page.getByTestId("kolo-tabs").getByRole("tab")).toHaveCount(7);
     await expect(page.getByText("Kolejka Weryfikacji:")).toHaveCount(0);
     await openTab(page, /Wpłaty Członków/);
@@ -91,9 +91,9 @@ test.describe("widoki: koło / region / kraj", () => {
 
   test("skarbnik regionu ma dwa poziomy analityczne i zablokowany region", async ({ page }) => {
     await login(page, USERS.region);
-    await expect(page.locator("select[name=region]")).toBeDisabled();
+    await expect(page.locator("input[name=region]")).toBeDisabled();
     await expect(page.getByRole("radio")).toHaveCount(2);
-    await expect(page.locator("select[name=kolo] option")).toHaveText(["Koło Radom", "Koło Warszawa"]);
+    expect(await optionsOf(page, "kolo")).toEqual(["Koło Radom", "Koło Warszawa"]);
     await expect(page.getByTestId("kolo-tabs").getByRole("tab")).toHaveCount(7);
   });
 
