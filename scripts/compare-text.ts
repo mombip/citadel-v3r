@@ -6,6 +6,8 @@
  */
 import { chromium, type Page } from "@playwright/test";
 import { writeFileSync } from "node:fs";
+const ADMIN = { login: process.env.PARITY_ADMIN_LOGIN || "admin2", password: process.env.PARITY_ADMIN_PASSWORD || "Admin1234!" };
+const UNIT = { login: process.env.PARITY_UNIT_LOGIN || "kolo_waw", password: process.env.PARITY_UNIT_PASSWORD || "Kolo1234!" };
 
 const [refBase, newBase, outFile] = [process.argv[2] || "http://localhost:8601", process.argv[3] || "http://localhost:8700", process.argv[4] || "tests/e2e/results/text-compare.json"];
 
@@ -70,8 +72,8 @@ async function run(base: string, isRef: boolean) {
 
   await page.goto(base);
   await grab("00-login");
-  await page.getByLabel("Login").fill("admin2");
-  await page.locator(isRef ? 'input[type="password"]' : "#haslo").fill("Admin1234!");
+  await page.getByLabel("Login").fill(ADMIN.login);
+  await page.locator(isRef ? 'input[type="password"]' : "#haslo").fill(ADMIN.password);
   await page.getByRole("button", { name: "Zaloguj do systemu" }).click();
   await page.waitForTimeout(isRef ? 4000 : 1500);
   await grab("01-zbiorcza");
@@ -94,8 +96,8 @@ async function run(base: string, isRef: boolean) {
   await grab("21-kraj");
   await page.getByRole("button", { name: "Wyloguj" }).click();
   await page.waitForTimeout(1500);
-  await page.getByLabel("Login").fill("kolo_waw");
-  await page.locator(isRef ? 'input[type="password"]' : "#haslo").fill("Kolo1234!");
+  await page.getByLabel("Login").fill(UNIT.login);
+  await page.locator(isRef ? 'input[type="password"]' : "#haslo").fill(UNIT.password);
   await page.getByRole("button", { name: "Zaloguj do systemu" }).click();
   await page.waitForTimeout(isRef ? 4000 : 1500);
   await grab("40-skarbnik-kola");

@@ -5,6 +5,8 @@
 import { chromium } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
+const ADMIN = { login: process.env.PARITY_ADMIN_LOGIN || "admin2", password: process.env.PARITY_ADMIN_PASSWORD || "Admin1234!" };
+const UNIT = { login: process.env.PARITY_UNIT_LOGIN || "kolo_waw", password: process.env.PARITY_UNIT_PASSWORD || "Kolo1234!" };
 
 const base = process.argv[2] || "http://localhost:8601";
 const out = process.argv[3] || "tests/e2e/screenshots/reference";
@@ -26,8 +28,8 @@ const settle = async () => {
 await page.goto(base);
 await settle();
 await shot("00-login");
-await page.getByLabel("Login").fill("admin2");
-await page.locator('input[type="password"]').fill("Admin1234!");
+await page.getByLabel("Login").fill(ADMIN.login);
+await page.locator('input[type="password"]').fill(ADMIN.password);
 await page.getByRole("button", { name: "Zaloguj do systemu" }).click();
 await settle();
 await page.waitForTimeout(3000);
@@ -90,8 +92,8 @@ await settle();
 // Unit treasurer perspective
 await page.getByRole("button", { name: "Wyloguj" }).click();
 await settle();
-await page.getByLabel("Login").fill("kolo_waw");
-await page.locator('input[type="password"]').fill("Kolo1234!");
+await page.getByLabel("Login").fill(UNIT.login);
+await page.locator('input[type="password"]').fill(UNIT.password);
 await page.getByRole("button", { name: "Zaloguj do systemu" }).click();
 await settle();
 await page.waitForTimeout(2500);

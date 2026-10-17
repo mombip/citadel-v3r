@@ -168,7 +168,8 @@
     {:else}
       {#each s.kolaKosz as k (k.id)}
         <div data-testid="kosz-kolo">
-          <p><strong>🏢 {k.nazwa}</strong> | Region: <strong>{k.region_nazwa ?? "Bez regionu"}</strong> | Usunięto: <code>{formatTimePL(k.deleted_at)}</code></p>
+          <!-- The original prints pandas' NaN as "nan" for units without a region; reproduced for parity. -->
+          <p><strong>🏢 {k.nazwa}</strong> | Region: <strong>{k.region_nazwa ?? "nan"}</strong> | Usunięto: <code>{formatTimePL(k.deleted_at)}</code></p>
           {#if k.region_w_koszu}<Alert kind="warning" html={`⚠️ Region nadrzędny ('${k.region_nazwa}') znajduje się w koszu. Aby przywrócić to koło, musisz najpierw przywrócić jego region.`} />{/if}
           <div class="cols">
             <div class="col"><button class="btn" type="button" onclick={() => run(() => post(`/kola/${k.id}/restore`), `Koło '${k.nazwa}' zostało przywrócone.`, (m) => (errTrash = m))}>🟢 Przywróć koło: {k.nazwa}</button></div>

@@ -49,6 +49,15 @@ przegląd wizualny: arkusze porównawcze `scripts/contact-sheets.ts` (oryginał 
 * Silniki obliczeń: test różnicowy 400 losowych członków z oryginalnym kodem Python — wyniki identyczne (`tests/parity`).
 * Testy API: 12, testy jednostkowe: 26, E2E Playwright: 21 (wszystkie zakładki, role, motywy, operacje zapisu, wygaszanie sesji).
 
-## Otwarte
+## Dane rzeczywiste (zrzut produkcyjny z 2026-10-17)
 
-* Porównanie na kopii danych produkcyjnych (Neon) — wymaga uruchomienia `npm run db:pull-prod` przez właściciela bazy.
+Oba programy uruchomione na tej samej lokalnej kopii zrzutu (15 kół, 73 członków, 438 wpisów audytu), z dwoma kontami testowymi
+dodanymi tylko w kopii. Zrzuty ekranów z danymi rzeczywistymi nie są w repozytorium (`tests/e2e/results/real`, gitignored).
+
+| Sesja | Słowa oryginału | Brakujące w nowej aplikacji |
+| :--- | ---: | :--- |
+| Skarbnik koła | 689 | 0 |
+| Administrator | 952 | 2 — czasy ostatniego logowania kont testowych (logowania w różnych chwilach) |
+
+Zgodność pikseli na danych rzeczywistych: średnio **94.1%** (91.6–99.0% na ekran).
+Etykieta „nan” oryginału (koło bez regionu w koszu i w listach struktury) odtworzona 1:1.
