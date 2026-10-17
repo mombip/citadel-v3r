@@ -20,7 +20,8 @@
   });
   const regOptions = $derived<[number, string][]>((s?.regiony ?? []).map((r: any) => [r.id, r.nazwa]));
   const regChoice = $derived<[number | null, string][]>([[null, "⚠️ Bez przypisanego regionu"], ...regOptions]);
-  const kolaOptions = $derived<[number, string][]>((s?.kola ?? []).map((k: any) => [k.id, `${k.nazwa} (${k.region_nazwa ?? "Bez regionu"})`]));
+  // The original shows pandas' NaN as "nan" for units without a region in these selects; reproduced for parity.
+  const kolaOptions = $derived<[number, string][]>((s?.kola ?? []).map((k: any) => [k.id, `${k.nazwa} (${k.region_nazwa ?? "nan"})`]));
   const kolCount = (rid: number) => Number((s?.regionyLiczbaKol ?? []).find((x: any) => x.region_id === rid)?.n ?? 0);
   const defaultReg = $derived(app.regionId && app.regionId !== -1 && regOptions.some(([id]) => id === app.regionId) ? app.regionId : null);
 
