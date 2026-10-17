@@ -7,3 +7,6 @@ tests/e2e/report/
 tests/e2e/screenshots/*.png
 scratch/
 *.log
+
+# Regenerated walkthrough screenshots of the new app (reference captures of the original stay versioned)
+tests/e2e/screenshots/new/
