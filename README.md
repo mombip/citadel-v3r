@@ -56,10 +56,11 @@ Katalog `backups/` jest w `.gitignore` — zrzuty zawierają dane produkcyjne.
 ### Wdrożenie: Netlify (https://citadel-ng.netlify.app)
 
 * SPA z `web/dist` + API jako Netlify Function (`netlify/functions/api.mts`), konfiguracja w `netlify.toml`.
-* Baza: **Netlify Database** (Postgres). Schemat jest migracją `netlify/database/migrations/*_citadel_schema`
-  (generowaną przez `npx tsx scripts/gen-netlify-migration.ts`), stosowaną przy każdym wdrożeniu. Wyzwalacze audytu
-  instaluje aplikacja przy starcie, jak oryginał.
-* Zmienne: `SESSION_SECRET` (ustawiona), opcjonalnie `DATABASE_URL` (nadpisuje Netlify Database), `SKIP_SCHEMA_INIT=1`.
+* Baza: **Supabase (PostgreSQL 17)** przez pooler transakcyjny — `DATABASE_URL` ustawione w Netlify (od 2026-10-17,
+  szczegóły i cofnięcie: `docs/MIGRATION-SUPABASE.md`). Schemat, widoki, wyzwalacze audytu i zabezpieczenie przed
+  Data API instaluje aplikacja przy starcie (`server/schema.ts`). Poprzednia **Netlify Database** pozostaje na razie
+  jako ścieżka cofnięcia (migracja `netlify/database/migrations/*_citadel_schema` nadal jest stosowana przy wdrożeniu).
+* Zmienne: `SESSION_SECRET`, `DATABASE_URL` (Supabase; bez niej funkcja użyłaby Netlify Database), opcjonalnie `SKIP_SCHEMA_INIT=1`.
 * Wdrożenie: `npx netlify deploy --prod --build` — **każde wdrożenie zużywa limit Netlify; wykonuj je tylko na wyraźne
   polecenie właściciela.** Repozytorium GitHub nie jest połączone z Netlify, więc `git push` niczego nie wdraża.
 * Dane zostały zaimportowane jednorazowo ze zrzutu Citadel V3 migracją `*_import_citadel_data`, która zawiera dane

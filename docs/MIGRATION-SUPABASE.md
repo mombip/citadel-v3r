@@ -19,6 +19,25 @@ dostępu do bazy przez SQL.
   (`server/schema.ts: SUPABASE_HARDENING_DDL`). Aplikacja łączy się jako właściciel, więc RLS jej nie dotyczy.
   Dodatkowo warto w panelu Supabase wyłączyć ekspozycję schematu `public` w Data API (Settings → Data API).
 
+## Wykonanie (2026-10-17, 19:15–19:21)
+
+* Próba na sucho lokalnie: 13/13 tabel identycznych.
+* Pooler projektu: `aws-0-eu-west-1.pooler.supabase.com:6543`, PostgreSQL 17.11 (host bezpośredni `db.<ref>.supabase.co`
+  jest tylko IPv6 — nieosiągalny ani z Netlify, ani z Windows bez IPv6).
+* Kopia z Netlify Database (617 wierszy, 13 tabel, 445 wpisów audytu, sekwencje) — identyczna; RLS 13/13, 0 uprawnień dla
+  ról API, 12 wyzwalaczy, widoki `security_invoker`.
+* Test aplikacji na Supabase przez pooler (logowanie, odczyt, zapis z wyzwalaczem, kopia zapasowa) — OK.
+* Przełączenie: kopia końcowa 19:15:08 → `DATABASE_URL` w Netlify (production, deploy-preview, branch-deploy) →
+  wdrożenie 19:16:31. Brak późnych zapisów w starej bazie (markery identyczne po przełączeniu).
+* Dowód: logowanie na produkcji kontem istniejącym tylko w Supabase (potem usunięte razem z 2 wpisami audytu);
+  aktywność prawdziwych użytkowników po przełączeniu widoczna tylko w Supabase.
+* Netlify Database zostaje nietknięta jako ścieżka cofnięcia; po kilku dniach — krok 6.
+* Uwaga: każdy zimny start funkcji wykonuje idempotentne `INSERT … ON CONFLICT` domyślnych wierszy, co przesuwa
+  sekwencję `kraje_id_seq` o 1–2 (bez znaczenia dla danych; tak samo działało na Netlify Database).
+* Uwaga bezpieczeństwa: łańcuch połączenia roli **tylko do odczytu** starej bazy Netlify trafił raz do zapisu rozmowy
+  (błąd skryptu pomocniczego); po wyłączeniu Netlify Database staje się bezużyteczny, wcześniej warto go
+  zregenerować w panelu Netlify.
+
 ## Przebieg
 
 | Krok | Co | Jak | Sprawdzenie |
